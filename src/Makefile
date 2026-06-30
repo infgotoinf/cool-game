@@ -338,7 +338,7 @@ endif
 # Default target entry
 all:
 	mkdir -p $(PROJECT_BUILD_PATH)
-	cp -r $(BUILD_WEB_RESOURCES_PATH) $(PROJECT_BUILD_PATH)/.
+	# cp -r $(BUILD_WEB_RESOURCES_PATH) $(PROJECT_BUILD_PATH)/.
 	$(MAKE) $(MAKEFILE_TARGET)
 
 # Project target defined by PROJECT_NAME
