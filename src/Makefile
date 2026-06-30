@@ -385,5 +385,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	rm -f *.o $(PROJECT_NAME).data $(PROJECT_NAME).html $(PROJECT_NAME).js $(PROJECT_NAME).wasm
     endif
 endif
+ifneq ($(PROJECT_BUILD_PATH),.)
 	rm -rf $(PROJECT_BUILD_PATH)
+endif
 	@echo Cleaning done
