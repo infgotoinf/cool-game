@@ -162,9 +162,9 @@ CFLAGS = -Wall -Wextra -D_DEFAULT_SOURCE -Wno-missing-braces -Wno-unused-value $
 #CFLAGS += -Wextra -Wmissing-prototypes -Wstrict-prototypes
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
-    CFLAGS += -std=gnu99
+    CFLAGS += -std=c++17
 else
-    CFLAGS += -std=c99
+    CFLAGS += -std=c++17
 endif
 
 ifeq ($(BUILD_MODE),DEBUG)
@@ -185,7 +185,7 @@ else
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
-    CFLAGS += -std=gnu99 -DEGL_NO_X11
+    CFLAGS += -std=c++17 -DEGL_NO_X11
 endif
 
 # Define include paths for required headers: INCLUDE_PATHS
@@ -338,7 +338,9 @@ endif
 # Default target entry
 all:
 	mkdir -p $(PROJECT_BUILD_PATH)
+ifneq ($(PROJECT_BUILD_PATH),.)
 	cp -r $(BUILD_WEB_RESOURCES_PATH) $(PROJECT_BUILD_PATH)/.
+endif
 	$(MAKE) $(MAKEFILE_TARGET)
 
 # Project target defined by PROJECT_NAME
@@ -383,5 +385,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	rm -f *.o $(PROJECT_NAME).data $(PROJECT_NAME).html $(PROJECT_NAME).js $(PROJECT_NAME).wasm
     endif
 endif
+ifneq ($(PROJECT_BUILD_PATH),.)
 	rm -rf $(PROJECT_BUILD_PATH)
+endif
 	@echo Cleaning done
