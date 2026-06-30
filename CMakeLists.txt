@@ -1,13 +1,25 @@
 cmake_minimum_required(VERSION 3.24...3.30)
-project(raylib-game-template)
+project(game)
 
 include(FetchContent)
 
 # Generate compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# This chunk of code exists to make my clangd LSP in Helix work with SDL3
+# https://mzhang.io/posts/2022-03-03-clangd-in-nix/
+# Generate the `compile_commands.json` file.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
+    ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
 
 # Dependencies
 set(RAYLIB_VERSION 6.0)
+
+set(PLATFORM Web)
 
 FetchContent_Declare(
     raylib
@@ -18,8 +30,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
+
 # Our Project
-add_executable(${PROJECT_NAME})
+add_executable(${PROJECT_NAME} WIN32
+    src/main/main.cpp
+)
 add_subdirectory(src)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

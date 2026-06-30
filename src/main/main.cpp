@@ -16,7 +16,7 @@
 #endif
 
 #include <stdio.h>                          // Required for: printf()
-#include <stdlib.h>                         // Required for: 
+#include <stdlib.h>                         // Required for:
 #include <string.h>                         // Required for:
 
 //----------------------------------------------------------------------------------
@@ -34,10 +34,10 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef enum { 
-    SCREEN_LOGO = 0, 
-    SCREEN_TITLE, 
-    SCREEN_GAMEPLAY, 
+typedef enum {
+    SCREEN_LOGO = 0,
+    SCREEN_TITLE,
+    SCREEN_GAMEPLAY,
     SCREEN_ENDING
 } GameScreen;
 
@@ -71,9 +71,9 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
     InitWindow(screenWidth, screenHeight, "raylib gamejam template");
-    
+
     // TODO: Load resources / Initialize variables at this point
-    
+
     // Render texture to draw, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
@@ -95,7 +95,7 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadRenderTexture(target);
-    
+
     // TODO: Unload all loaded resources at this point
 
     CloseWindow();        // Close window and OpenGL context
@@ -113,17 +113,17 @@ void UpdateDrawFrame(void)
     // Update
     //----------------------------------------------------------------------------------
     // TODO: Update variables / Implement example logic at this point
-   
+
     frameCounter++;
     //----------------------------------------------------------------------------------
 
     // Draw
     //----------------------------------------------------------------------------------
-    // Render game screen to a texture, 
+    // Render game screen to a texture,
     // it could be useful for scaling or further shader postprocessing
     BeginTextureMode(target);
         ClearBackground(RAYWHITE);
-        
+
         // TODO: Draw your game screen here
 
         DrawRectangle(70, 90, 200, 200, BLACK);
@@ -134,21 +134,21 @@ void UpdateDrawFrame(void)
         DrawText("GAMEJAM", 70, 90 + 210, 120, MAROON);
 
         if ((frameCounter/20)%2) DrawText("are you ready?", 160, 500, 50, BLACK);
-        
+
         DrawRectangleLinesEx((Rectangle){ 0, 0, screenWidth, screenHeight }, 16, BLACK);
-        
+
     EndTextureMode();
-    
+
     // Render to screen (main framebuffer)
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        
+
         // Draw render texture to screen, scaled if required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, 
+        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height },
             (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
         // TODO: Draw everything that requires to be drawn at this point, maybe UI?
 
     EndDrawing();
-    //----------------------------------------------------------------------------------  
+    //----------------------------------------------------------------------------------
 }

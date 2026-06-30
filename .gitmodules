@@ -1,0 +1,3 @@
+[submodule "vendored/emsdk"]
+	path = vendored/emsdk
+	url = https://github.com/emscripten-core/emsdk.git

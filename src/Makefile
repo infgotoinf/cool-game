@@ -26,13 +26,16 @@
 # Define required environment variables
 #------------------------------------------------------------------------------------------------
 # Define target platform: PLATFORM_DESKTOP, PLATFORM_WEB, PLATFORM_DRM, PLATFORM_ANDROID
-PLATFORM              ?= PLATFORM_DESKTOP
+PLATFORM              ?= PLATFORM_WEB
 
 # Define project variables
-PROJECT_NAME          ?= raylib_game
-PROJECT_VERSION       ?= 1.0
-PROJECT_BUILD_PATH    ?= .
-PROJECT_SOURCE_FILES  ?= raylib_game.c
+PROJECT_NAME          ?= game
+PROJECT_VERSION       ?= 0.01
+PROJECT_BUILD_PATH    ?= build
+PROJECT_SOURCE_FILES  ?= $(basename $(notdir $(shell find $(PROJECT_SOURCE_DIR) -name '*.cpp')))
+PROJECT_SOURCE_DIR    ?= main
+
+VENDORED_PATH         ?= ../vendored
 
 # raylib library variables
 RAYLIB_PATH           ?= C:/raylib/raylib
@@ -55,7 +58,7 @@ BUILD_WEB_HEAP_SIZE   ?= 128MB
 BUILD_WEB_STACK_SIZE  ?= 1MB
 BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
 BUILD_WEB_RESOURCES   ?= TRUE
-BUILD_WEB_RESOURCES_PATH  ?= resources
+BUILD_WEB_RESOURCES_PATH ?= resources
 
 # Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
@@ -95,7 +98,7 @@ endif
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Emscripten required variables
-    EMSDK_PATH         ?= C:/raylib/emsdk
+    EMSDK_PATH         ?= $(VENDORED_PATH)/emsdk
     EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
     CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
     PYTHON_PATH         = $(EMSDK_PATH)/python/3.13.3_64bit
@@ -107,16 +110,16 @@ endif
 
 # Define default C compiler: CC
 #------------------------------------------------------------------------------------------------
-CC = gcc
+CC = g++
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),OSX)
         # OSX default compiler
-        CC = clang
+        CC = clang++
     endif
     ifeq ($(PLATFORM_OS),BSD)
         # FreeBSD, OpenBSD, NetBSD, DragonFly default compiler
-        CC = clang
+        CC = clang++
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
@@ -155,7 +158,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -Wno-unused-value    ignore unused return values of some functions (i.e. fread())
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS = -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -Wno-unused-value -Wno-pointer-sign $(PROJECT_CUSTOM_FLAGS)
+CFLAGS = -Wall -Wextra -D_DEFAULT_SOURCE -Wno-missing-braces -Wno-unused-value $(PROJECT_CUSTOM_FLAGS)
 #CFLAGS += -Wextra -Wmissing-prototypes -Wstrict-prototypes
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
@@ -318,7 +321,8 @@ endif
 
 # Define all object files from source files
 #------------------------------------------------------------------------------------------------
-OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
+# OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
+OBJS = $(PROJECT_SOURCE_FILES:%=$(PROJECT_BUILD_PATH)/%.o)
 
 # Define processes to execute
 #------------------------------------------------------------------------------------------------
@@ -333,6 +337,8 @@ endif
 
 # Default target entry
 all:
+	mkdir -p $(PROJECT_BUILD_PATH)
+	cp -r $(BUILD_WEB_RESOURCES_PATH) $(PROJECT_BUILD_PATH)/.
 	$(MAKE) $(MAKEFILE_TARGET)
 
 # Project target defined by PROJECT_NAME
@@ -341,7 +347,7 @@ $(PROJECT_NAME): $(OBJS)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
-%.o: %.c
+$(PROJECT_BUILD_PATH)/%.o: $(PROJECT_SOURCE_DIR)/%.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 # Clean everything
@@ -377,5 +383,5 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	rm -f *.o $(PROJECT_NAME).data $(PROJECT_NAME).html $(PROJECT_NAME).js $(PROJECT_NAME).wasm
     endif
 endif
+	rm -rf $(PROJECT_BUILD_PATH)
 	@echo Cleaning done
-

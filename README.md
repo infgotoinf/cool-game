@@ -7,9 +7,67 @@ This template provides a base structure to start developing a small raylib game 
 
 All the sections defined by `$(Data to Fill)` are expected to be edited and filled properly. It's recommended to delete this disclaimer message after editing this `README.md` file.
 
-## Getting Started with this template
+## Build + Run
 
-### Windows: Visual Studio
+1. Clone project's repo:
+```bash
+git clone https://github.com/infgotoinf/cool-game
+```
+
+2. Install git modules:
+```bash
+git submodule update --init --recursive
+```
+
+3. Install [emsdk](https://github.com/emscripten-core/emsdk):
+
+> [!NOTE]
+> **You need to have Python installed**. If something doesn't work, you should probably follow [Raylib's web setub guide](https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)#4-setup-raylib-game-for-web).
+
+   - On Windows:
+  ```bash
+  cd vendored/emsdk
+  ./emcmdprompt.bat
+  ```
+
+  - On Linux:
+  ```bash
+  cd vendored/emsdk
+  ./emsdk install latest
+  ./emsdk activate latest
+  ```
+
+4. Build:
+
+  - For web:
+  ```bash
+  cd ../..
+  vendored/emsdk/upstream/emscripten/emcmake cmake -B build
+  cmake --build build
+  ```
+  - For desktop:
+  ```bash
+  cd ../../src
+  PLATFORM=PLATFORM_DESKTOP make
+  ```
+
+5. Run:
+
+  - Web:
+  ```bash
+  vendored/emsdk/upstream/emscripten/emrun build/game/game.html
+  ```
+
+  - Desktop:
+  ```bash
+  build/game
+  ```
+
+
+> [!NOTE]
+> I left the next build sections just for the reference if something doesn't work. You probably don't need them.
+
+#### Windows: Visual Studio
 
 - After extracting the zip, the parent folder `raylib-game-template` should exist in the same directory as `raylib` itself.  So, your file structure should look like this:
     - Some parent directory
