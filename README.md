@@ -47,31 +47,29 @@ devbox shell
   ./emsdk activate latest
   ```
 
-4. Build:
+4. Build for web:
 
-  - For web:
   ```bash
   cd ../..
   vendored/emsdk/upstream/emscripten/emcmake cmake -B build
   cmake --build build
   ```
-  - For desktop:
-  ```bash
-  cd ../../src
-  PLATFORM=PLATFORM_DESKTOP make
-  ```
+  <!-- - For desktop: -->
+  <!-- ```bash -->
+  <!-- cd ../../src -->
+  <!-- PLATFORM=PLATFORM_DESKTOP make -->
+  <!-- ``` -->
 
-5. Run:
+5. Run in browser:
 
-  - Web:
   ```bash
   vendored/emsdk/upstream/emscripten/emrun build/game/game.html
   ```
 
-  - Desktop:
-  ```bash
-  build/game
-  ```
+  <!-- - Desktop: -->
+  <!-- ```bash -->
+  <!-- build/game -->
+  <!-- ``` -->
 
 
 > [!NOTE]
