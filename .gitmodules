@@ -1,3 +1,6 @@
 [submodule "vendored/emsdk"]
 	path = vendored/emsdk
 	url = https://github.com/emscripten-core/emsdk.git
+[submodule "vendored/raygui"]
+	path = vendored/raygui
+	url = https://github.com/raysan5/raygui.git

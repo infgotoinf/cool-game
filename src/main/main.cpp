@@ -10,14 +10,21 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>      // Emscripten library
 #endif
 
-#include <stdio.h>                          // Required for: printf()
-#include <stdlib.h>                         // Required for:
-#include <string.h>                         // Required for:
+#include "include/window_codes.hpp"
+#include "include/gamejam_template.hpp"
+#include "include/python_vc_cpp.hpp"
+#include "include/game_3d_example.hpp"
+#include "include/paralax_bg_example.hpp"
+#include "include/music_example.hpp"
+
+
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -31,33 +38,29 @@
     #define LOG(...)
 #endif
 
-//----------------------------------------------------------------------------------
-// Types and Structures Definition
-//----------------------------------------------------------------------------------
-typedef enum {
-    SCREEN_LOGO = 0,
-    SCREEN_TITLE,
-    SCREEN_GAMEPLAY,
-    SCREEN_ENDING
-} GameScreen;
 
-// TODO: Define your custom data types here
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screenWidth = 720;
-static const int screenHeight = 720;
+static const int screen_width = 720;
+static const int screen_height = 720;
 
 static RenderTexture2D target = { 0 };  // Render texture to render our game
-static int frameCounter = 0;
+static WindowID current_window = WindowID::MAIN_MENU;
 
 // TODO: Define global variables here, recommended to make them static
+
+
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
+
+Rectangle centerButton(int x, int y, int width, int height);
+
+
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -70,13 +73,14 @@ int main(void)
 
     // Initialization
     //--------------------------------------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "raylib gamejam template");
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
+    InitWindow(screen_width, screen_height, "raylib gamejam template");
 
     // TODO: Load resources / Initialize variables at this point
 
-    // Render texture to draw, enables screen scaling
-    // NOTE: If screen is scaled, mouse input should be scaled proportionally
-    target = LoadRenderTexture(screenWidth, screenHeight);
+    // Render texture to draw, enables screen_ scaling
+    // NOTE: If screen_ is scaled, mouse input should be scaled proportionally
+    target = LoadRenderTexture(screen_width, screen_height);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
 #if defined(PLATFORM_WEB)
@@ -104,6 +108,8 @@ int main(void)
     return 0;
 }
 
+
+
 //--------------------------------------------------------------------------------------------
 // Module Functions Definition
 //--------------------------------------------------------------------------------------------
@@ -114,41 +120,78 @@ void UpdateDrawFrame(void)
     //----------------------------------------------------------------------------------
     // TODO: Update variables / Implement example logic at this point
 
-    frameCounter++;
+    if (IsKeyPressed(KEY_Q)) {
+        EnableCursor();
+        current_window = WindowID::MAIN_MENU;
+    }
+
+    switch (current_window) {
+    case WindowID::MUSIC_EXAMPLE:
+        drawMusicExample();
+        break;
+
+    case WindowID::PYTHON_VC_CPP:
+        drawPythonVcCpp();
+        break;
+
+    case WindowID::GAMEJAM_TEMPLATE:
+        drawGamejamTemplate(target);
+        break;
+
+    case WindowID::GAME_3D_EXAMPLE:
+        drawGame3DExample();
+        break;
+
+    case WindowID::PARALAX_BG_EXAMPLE:
+        drawParalaxBgExample();
+        break;
+
+    case WindowID::MAIN_MENU:
+    default:
+        BeginDrawing();
+            ClearBackground(RAYWHITE);
+            GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+            if (GuiButton( centerButton(screen_width / 2, screen_height / 2 - 90, 250, 40)
+                         , "Music Example"))
+                current_window = WindowID::MUSIC_EXAMPLE;
+
+            if (GuiButton( centerButton(screen_width / 2, screen_height / 2 - 45, 250, 40)
+                         , "Python VC C++"))
+                current_window = WindowID::PYTHON_VC_CPP;
+
+            if (GuiButton( centerButton(screen_width / 2, screen_height / 2, 250, 40)
+                         , "Gamejam Template"))
+                current_window = WindowID::GAMEJAM_TEMPLATE;
+
+            if (GuiButton( centerButton(screen_width / 2, screen_height / 2 + 45, 250, 40)
+                         , "3D Game"))
+                current_window = WindowID::GAME_3D_EXAMPLE;
+
+            if (GuiButton( centerButton(screen_width / 2, screen_height / 2 + 90, 250, 40)
+                         , "Paralax BG"))
+                current_window = WindowID::PARALAX_BG_EXAMPLE;
+
+        EndDrawing();
+    }
     //----------------------------------------------------------------------------------
 
     // Draw
     //----------------------------------------------------------------------------------
-    // Render game screen to a texture,
+    // Render game screen_ to a texture,
     // it could be useful for scaling or further shader postprocessing
-    BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
 
-        // TODO: Draw your game screen here
-
-        DrawRectangle(70, 90, 200, 200, BLACK);
-        DrawRectangle(70 + 16, 90 + 16, 200 - 32, 200 - 32, RAYWHITE);
-        DrawText("raylib", 70 + 200 - MeasureText("raylib", 40) - 32, 90 + 200 - 40 - 24, 40, BLACK);
-
-        DrawText("6.x", 290, 90 - 26, 280, BLACK);
-        DrawText("GAMEJAM", 70, 90 + 210, 120, MAROON);
-
-        if ((frameCounter/20)%2) DrawText("are you ready?", 160, 500, 50, BLACK);
-
-        DrawRectangleLinesEx((Rectangle){ 0, 0, screenWidth, screenHeight }, 16, BLACK);
-
-    EndTextureMode();
-
-    // Render to screen (main framebuffer)
+    // Render to screen_ (main framebuffer)
     BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        // Draw render texture to screen, scaled if required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height },
-            (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
-
-        // TODO: Draw everything that requires to be drawn at this point, maybe UI?
-
+        DrawText("Press (Q) to exit the example"
+               , 20, screen_height - 40, 20, PINK);
     EndDrawing();
     //----------------------------------------------------------------------------------
+}
+
+
+Rectangle centerButton(int x, int y, int width, int height) {
+    return Rectangle{ static_cast<float>(width) / -2 + x
+                    , static_cast<float>(height) / -1 + y
+                    , static_cast<float>(width)
+                    , static_cast<float>(height) };
 }
