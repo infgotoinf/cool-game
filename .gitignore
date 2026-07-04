@@ -81,4 +81,3 @@ android.*
 
 .devbox
 .venv
-vendored/*
