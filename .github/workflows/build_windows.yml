@@ -3,12 +3,15 @@ name: Build Project - Windows
 on:
   workflow_dispatch:
   push:
+    branches: [ "main" ]
     paths:
       - 'src/**'
       - '.github/workflows/build_windows.yml'
+  pull_request:
+    branches: [ "main" ]
   release:
     types: [published]
-    
+
 permissions:
   contents: read
 
@@ -32,7 +35,7 @@ jobs:
       uses: actions/checkout@master
       with:
         path: ${{ env.PROJECT_REPO_NAME }}
-      
+
     - name: Checkout raylib repo
       uses: actions/checkout@v4
       with:
