@@ -126,7 +126,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # HTML5 emscripten compiler
     # WARNING: To compile to HTML5, code must be redesigned
     # to use emscripten.h and emscripten_set_main_loop()
-    CC = emcc
+    CC = em++
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
     ifeq ($(USE_RPI_CROSS_COMPILER),TRUE)
@@ -158,7 +158,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -Wno-unused-value    ignore unused return values of some functions (i.e. fread())
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS = -Wall -Wextra -D_DEFAULT_SOURCE -Wno-missing-braces -Wno-unused-value $(PROJECT_CUSTOM_FLAGS)
+CFLAGS = -Wall -Wextra -Wno-missing-braces -Wno-unused-value $(PROJECT_CUSTOM_FLAGS)
 #CFLAGS += -Wextra -Wmissing-prototypes -Wstrict-prototypes
 
 ifeq ($(PLATFORM),PLATFORM_WEB)

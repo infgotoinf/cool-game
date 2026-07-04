@@ -4,17 +4,9 @@ project(game)
 include(FetchContent)
 
 # Generate compile_commands.json
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# This chunk of code exists to make my clangd LSP in Helix work with SDL3
-# https://mzhang.io/posts/2022-03-03-clangd-in-nix/
-# Generate the `compile_commands.json` file.
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
-
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
-    ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-endif()
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 # Dependencies
 set(RAYLIB_VERSION 6.0)
@@ -35,6 +27,32 @@ FetchContent_MakeAvailable(raylib)
 add_executable(${PROJECT_NAME} WIN32
     src/main/main.cpp
 )
+
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        src/main/gamejam_template.cpp
+        src/main/python_vc_cpp.cpp
+        src/main/game_3d_example.cpp
+        src/main/paralax_bg_example.cpp
+        src/main/music_example.cpp
+
+    PUBLIC
+        FILE_SET headers
+        TYPE HEADERS
+        BASE_DIRS
+            vendored/raygui/src
+            src/main/include
+        FILES
+            vendored/raygui/src/raygui.h
+
+            src/main/include/window_codes.hpp
+            src/main/include/gamejam_template.hpp
+            src/main/include/python_vc_cpp.hpp
+            src/main/include/game_3d_example.hpp
+            src/main/include/paralax_bg_example.hpp
+            src/main/include/music_example.hpp
+)
+
 add_subdirectory(src)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
