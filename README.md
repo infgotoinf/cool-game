@@ -19,6 +19,16 @@ git clone https://github.com/infgotoinf/cool-game
 git submodule update --init --recursive
 ```
 
+2.1 If you are on NixOS:
+```bash
+nix-shell
+```
+
+2.2 If you use [devbox.json](https://www.jetify.com/devbox):
+```bash
+devbox shell
+```
+
 3. Install [emsdk](https://github.com/emscripten-core/emsdk):
 
 > [!NOTE]
