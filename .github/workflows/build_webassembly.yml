@@ -3,9 +3,12 @@ name: Build Project - WebAssembly
 on:
   workflow_dispatch:
   push:
+    branches: [ "main" ]
     paths:
       - 'src/**'
       - '.github/workflows/build_webassembly.yml'
+  pull_request:
+    branches: [ "main" ]
   release:
     types: [published]
 

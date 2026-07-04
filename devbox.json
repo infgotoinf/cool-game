@@ -1,0 +1,17 @@
+{
+  "packages": {
+    "raylib": "latest"
+  , "libGL": "latest"
+  , "alsa-lib": "latest"
+  , "python3": "latest"
+  , "gcc": "latest"
+  , "gnumake": "latest"
+  , "cmake": "latest"
+  , "ninja": "latest"
+  , "ccache": "latest"
+  , "clang-tools": "latest"
+  },
+  "env": {
+    "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+  }
+}

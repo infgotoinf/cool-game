@@ -79,5 +79,5 @@ android.*
 !src/minshell.html
 !src/shell.html
 
-build
-vendored
+.devbox
+.venv
