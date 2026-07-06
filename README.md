@@ -34,13 +34,6 @@ devbox shell
 > [!NOTE]
 > **You need to have Python installed**. If something doesn't work, you should probably follow [Raylib's web setub guide](https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5)#4-setup-raylib-game-for-web).
 
-   - On Windows:
-  ```bash
-  cd vendored/emsdk
-  ./emcmdprompt.bat
-  ```
-
-  - On Linux:
   ```bash
   cd vendored/emsdk
   ./emsdk install latest
