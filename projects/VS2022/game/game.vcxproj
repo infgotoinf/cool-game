@@ -362,7 +362,7 @@
     <ClCompile Include="..\..\..\src\main\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Resourc\maineCompile Include="..\..\..\src\game.rc\main" />
+    <ResourceCompile Include="..\..\..\src\game.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
