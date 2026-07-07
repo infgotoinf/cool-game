@@ -30,11 +30,10 @@ add_executable(${PROJECT_NAME} WIN32
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        src/main/gamejam_template.cpp
-        src/main/python_vc_cpp.cpp
-        src/main/game_3d_example.cpp
-        src/main/paralax_bg_example.cpp
-        src/main/music_example.cpp
+        src/main/game.cpp
+        src/main/draw_game.cpp
+        src/main/draw_main_menu.cpp
+        src/main/draw_pause.cpp
 
     PUBLIC
         FILE_SET headers
@@ -46,11 +45,7 @@ target_sources(${PROJECT_NAME}
             vendored/raygui/src/raygui.h
 
             src/main/include/window_codes.hpp
-            src/main/include/gamejam_template.hpp
-            src/main/include/python_vc_cpp.hpp
-            src/main/include/game_3d_example.hpp
-            src/main/include/paralax_bg_example.hpp
-            src/main/include/music_example.hpp
+            src/main/include/game.hpp
 )
 
 add_subdirectory(src)
