@@ -32,10 +32,8 @@ void Game::drawMainMenu()
                                  , screen_height / 2 + 45
                                  , 250, 40)
                      , "End"))
+        {}
             // current_window = WindowID::GAME_3D_EXAMPLE;
-
-        // Idk why it doesn't get rendered
-        DrawText("lol", 20, 20, 40, PURPLE);
 
     EndDrawing();
 }
