@@ -11,10 +11,13 @@ Game::Game()
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     InitWindow(screen_width, screen_height, "HexAgony");
 
-    // Image python_img = LoadImage("resources/python-guy.png");
-    // ImageResize(&python_img, image_size, image_size);
-    // python_tex = LoadTextureFromImage(python_img);
-    // UnloadImage(python_img);
+    textures["game_back"]       = LoadTexture("resources/game/back.png");
+    textures["game_middle"]     = LoadTexture("resources/game/middle.png");
+    textures["game_front"]      = LoadTexture("resources/game/front.png");
+    textures["game_bar"]        = LoadTexture("resources/game/bar.png");
+    textures["game_bar_face"]   = LoadTexture("resources/game/bar_face.png");
+    textures["game_hex_table"]  = LoadTexture("resources/game/hex_table.png");
+    textures["game_pause_icon"] = LoadTexture("resources/game/pause_icon.png");
 
     // Image cpp_img = LoadImage("resources/cpp-guy.png");
     // ImageResize(&cpp_img, image_size, image_size);
@@ -36,7 +39,12 @@ Game::~Game()
     //-------------------------------------------------------------------------
     UnloadRenderTexture(target);
 
-    // TODO: Unload all loaded resources at this point
+    // https://stackoverflow.com/questions/2850312/use-of-for-each-on-map-elements
+    for ( std::map<const char*, Texture2D>::iterator it = textures.begin()
+        ; it != textures.end(); ++it)
+    {
+        UnloadTexture(it->second);
+    }
 
     CloseWindow();        // Close window and OpenGL context
     //-------------------------------------------------------------------------
@@ -65,12 +73,3 @@ void Game::shakeScreen(int shake_ammount, float shake_stopper)
     camera.offset.y += GetRandomValue(-shake_ammount, shake_ammount);
     camera.offset.x += GetRandomValue(-shake_ammount, shake_ammount);
 }
-
-
-// double Game::showTime(double cur_time)
-// {
-//     double ret_time = cur_time - time;
-//     DrawText(TextFormat("%06.3f", ret_time)
-//            , 30, 30, 20, WHITE);
-//     return ret_time;
-// }

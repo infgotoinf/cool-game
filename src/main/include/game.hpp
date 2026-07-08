@@ -3,14 +3,18 @@
 
 #include "raylib.h"
 
+#include <map>
+
 #include "window_codes.hpp"
 
 
 
 class Game {
+    std::map<const char*, Texture2D> textures;
     Camera2D camera;
     RenderTexture2D target = { 0 };
     float game_start_timestamp;
+    float curse_value; ///< Thing that drains in the game bar
 
     bool is_gameover;
 
@@ -43,10 +47,6 @@ public:
     /// @param[in] shake_supressor Value to gradually supress the screen shake.
     ///------------------------------------------------------------------------
     void shakeScreen(int shake_ammount, float shake_supressor);
-
-    ///------------------------------------------------------------------------
-    ///------------------------------------------------------------------------
-    // double showTime(double cur_time);
 
     ///------------------------------------------------------------------------
     /// Draws main menu screen.
