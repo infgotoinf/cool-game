@@ -91,8 +91,8 @@ void Game::drawGame() {
         ClearBackground(RAYWHITE);
 
         // Draw render texture to screen, scaled if required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height },
-            (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+        DrawTexturePro(target.texture, { 0, 0, (float)target.texture.width, -(float)target.texture.height },
+            { 0, 0, (float)target.texture.width, (float)target.texture.height }, { 0, 0 }, 0.0f, WHITE);
 
         // DrawTexture(textures["game_front"], 0, 0, BLANK);
         // TODO: Draw everything that requires to be drawn at this point, maybe UI?
