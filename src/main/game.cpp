@@ -54,8 +54,8 @@ Game::~Game()
 void Game::resetGame()
 {
     camera = { 0 };
-    camera.target = (Vector2){ 0, 0 };
-    camera.offset = (Vector2){ 0, 0 };
+    camera.target = { 0, 0 };
+    camera.offset = { 0, 0 };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -67,7 +67,7 @@ void Game::resetGame()
 
 void Game::shakeScreen(int shake_ammount, float shake_stopper)
 {
-    camera.offset = (Vector2){ 0, 0 };
+    camera.offset = { 0, 0 };
     camera.rotation = 0.0f;
 
     camera.offset.y += GetRandomValue(-shake_ammount, shake_ammount);
