@@ -9,7 +9,7 @@
 
 
 constexpr static int ANIMATION_FPS = 10;
-constexpr static Vector2 GUY_COLOR_SPREAD = { 25, 75 };
+constexpr static Vector2 GUY_COLOR_SPREAD = { 0, 75 };
 constexpr static Vector2 GUY_SPEED_SPREAD = { 5, 15 };
 constexpr static Color BAR_COLOR100 = { 215, 0, 255, 255 }; // PURPLE
 constexpr static Color BAR_COLOR0 = { 255, 0, 0, 255 }; // RED
@@ -59,11 +59,13 @@ Guy Game::createRandomGuy()
 {
     Vector2 pos = { static_cast<float>(GetRandomValue(72, 578))
                   , static_cast<float>(140 + GetRandomValue(0, 25)) };
-    int random_color_skip1 = GetRandomValue(0, 2);
-    int random_color_skip2 = GetRandomValue(0, 2);
-    Color color = { static_cast<unsigned char>(random_color_skip1 == 0 || random_color_skip2 == 0 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
-                  , static_cast<unsigned char>(random_color_skip1 == 1 || random_color_skip2 == 1 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
-                  , static_cast<unsigned char>(random_color_skip1 == 2 || random_color_skip2 == 2 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y)), 255 };
+    // int random_color_skip1 = GetRandomValue(0, 2);
+    // int random_color_skip2 = GetRandomValue(0, 2);
+    // Color color = { static_cast<unsigned char>(random_color_skip1 == 0 || random_color_skip2 == 0 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
+    //               , static_cast<unsigned char>(random_color_skip1 == 1 || random_color_skip2 == 1 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
+    //               , static_cast<unsigned char>(random_color_skip1 == 2 || random_color_skip2 == 2 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y)), 255 };
+    unsigned char c = GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y);
+    Color color = { c, c, c, 255};
     float speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1;
     GuyState state = GuyState::WALK;
     int frame = (state == WALK ? GetRandomValue(0, animations["game_guy_walk"].size())
@@ -166,6 +168,12 @@ void Game::drainCurse() {
 
 void Game::drawGame()
 {
+    // https://github.com/Apfelstrudel-Technologien/raylibVignette/blob/main/main.c
+    static Shader vignette = LoadShader(0, "resources/vignette.fs");
+    static int rLoc = GetShaderLocation(vignette, "radius");
+    static int blurLoc = GetShaderLocation(vignette, "blur");
+    static int colLoc = GetShaderLocation(vignette, "color");
+
     drainCurse();
     if (curse_value <= 0) curse_value = SECONDS_TO_CURSE;
 
@@ -184,7 +192,6 @@ void Game::drawGame()
                         + BAR_COLOR100.b * (CURSE_EXTREME_VALUE - (curse_drain_speed - 1))) / CURSE_EXTREME_VALUE)
                       , 255 };
 
-
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
@@ -198,10 +205,17 @@ void Game::drawGame()
 
         // Interface base
         DrawTexture(textures["game_back"], size_10th, 0, WHITE);
-        DrawTexture(textures["game_middle"], size_10th, size_10th, WHITE);
+        DrawTexture(textures["game_middle"], size_10th, 0, WHITE);
         drawGuys(0, 0);
-        DrawTexture(textures["game_front"], 0, 0, WHITE);
+        DrawTexture(textures["game_almost_front"], size_10th, 0, WHITE);
+        DrawTexture(textures["game_front"], -size_10th / 2, -size_10th / 2, WHITE);
         // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
+
+        // Hex table
+        drawHexTable(size_10th * 2.5 + 2, size_10th * 8 - 5, size_10th * 2 + 6, BLACK);
+        DrawTexture(textures["game_hex_table"], size_10th * 0.5 - 10, size_10th * 6, WHITE);
+
+        DrawTexture(textures["game_curtains"], -size_10th / 2, -size_10th / 2, WHITE);
 
         // Bar
         DrawRectangle(size_10th * 8.55, size_10th * 1.55, size_10th * 0.85, size_10th * 6.5, DARKGRAY);
@@ -210,43 +224,62 @@ void Game::drawGame()
                        , size_10th * 6.5 / 20 * curse_value, bar_color);
         DrawRectangle(size_10th * 8.05, size_10th * 7.9, size_10th * 1.85, size_10th * 1.8, bar_color);
         DrawTexture(textures["game_bar_face"], size_10th * 8, size_10th * 8, WHITE);
-        DrawTexture(textures["game_bar"], size_10th * 8, size_10th * 1.5, WHITE);
-
-        // Hex table
-        drawHexTable(size_10th * 2.5 + size_10th / 7, size_10th * 8 - size_10th / 7, size_10th * 2, BLACK);
-        DrawTexture(textures["game_hex_table"], size_10th * 0.5, size_10th * 6, WHITE);
+        DrawTexture(textures["game_bar"], size_10th * 8 - 20, size_10th * 1.5 - 25, WHITE);
 
         // Time
-        DrawText(formatTime(GetTime() - game_start_timestamp), 90, 13, 40, DARKGRAY);
+        DrawText(formatTime(GetTime() - game_start_timestamp), 90, 13, 40, { 255, 255, 255, 50 });
 
-        // Curse Value
+        // Curse drain speed
         DrawText( TextFormat("%10.2fX", curse_drain_speed)
                 // idk if this hardcoded value will work, but ok
                 , size_10th * 9 - MeasureText(TextFormat("%10.2fX", curse_drain_speed), 40) * 0.75
-                , size_10th, 40, curse_drain_speed_color);
-
-        // Pause
-        // DrawRectangle(18, 11, 40, 40, WHITE); // Draw pause hitbox
-        DrawTexture(textures["game_pause_icon"], 20, 13, BLACK);
-        if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
-          && CheckCollisionPointRec(GetMousePosition(), {18, 11, 40, 40}))
-        {
-            game_pause_timestamp = GetTime();
-            current_window = WindowID::PAUSE;
-        }
+                , size_10th - 10, 40, curse_drain_speed_color);
 
     EndTextureMode();
 
+
+    static float radius = 0.5f;
+    static float blur = 0.1f;
+    static Vector3 v_color = { 1.0f, 1.0f, 1.0f };
+    static RenderTexture2D v_texture = LoadRenderTexture(screen_width, screen_height);
+
+    if (IsKeyDown(KEY_UP)) radius += 0.01f;
+    if (IsKeyDown(KEY_DOWN)) radius -= 0.01f;
+
+    if (IsKeyDown(KEY_RIGHT)) blur += 0.01f;
+    if (IsKeyDown(KEY_LEFT)) blur -= 0.01f;
+    SetShaderValue(vignette, rLoc, &radius, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(vignette, blurLoc, &blur, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(vignette, colLoc, &v_color, SHADER_UNIFORM_VEC3);
+
+    // Pause
+    if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
+      && CheckCollisionPointRec(GetMousePosition(), {18, 11, 40, 40}))
+    {
+        game_pause_timestamp = GetTime();
+        current_window = WindowID::PAUSE;
+    }
+
     // Render to screen (main framebuffer)
     BeginDrawing();
-        ClearBackground(RAYWHITE);
 
         // Draw render texture to screen, scaled if required
         DrawTexturePro(target.texture, { 0, 0, (float)target.texture.width, -(float)target.texture.height },
             { 0, 0, (float)target.texture.width, (float)target.texture.height }, { 0, 0 }, 0.0f, WHITE);
 
-        // DrawTexture(textures["game_front"], 0, 0, BLANK);
-        // TODO: Draw everything that requires to be drawn at this point, maybe UI?
+        // Draw vignette
+        // https://github.com/Apfelstrudel-Technologien/raylibVignette/blob/0795e875632cdd891a3f11b077bbe4da0ab176fc/main.c
+        BeginShaderMode(vignette);
+
+            DrawTextureRec(v_texture.texture, { 0, 0
+                                              , static_cast<float>(v_texture.texture.width)
+                                              , static_cast<float>(-v_texture.texture.height) }, (Vector2){ 0, 0 }, BLANK);
+
+        EndShaderMode();
+
+        // Pause
+        // DrawRectangle(18, 11, 40, 40, WHITE); // Draw pause hitbox
+        DrawTexture(textures["game_pause_icon"], 20, 13, BLACK);
 
     EndDrawing();
 }

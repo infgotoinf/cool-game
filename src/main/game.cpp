@@ -26,13 +26,15 @@ Game::Game()
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     InitWindow(screen_width, screen_height, "HexAgony");
 
-    textures["game_back"]       = LoadTexture("resources/game/back.png");
-    textures["game_middle"]     = LoadTexture("resources/game/middle.png");
-    textures["game_front"]      = LoadTexture("resources/game/front.png");
-    textures["game_bar"]        = LoadTexture("resources/game/bar.png");
-    textures["game_bar_face"]   = LoadTexture("resources/game/bar_face.png");
-    textures["game_hex_table"]  = LoadTexture("resources/game/hex_table.png");
-    textures["game_pause_icon"] = LoadTexture("resources/game/pause_icon.png");
+    textures["game_back"]         = LoadTexture("resources/game/back.png");
+    textures["game_middle"]       = LoadTexture("resources/game/middle.png");
+    textures["game_almost_front"] = LoadTexture("resources/game/almost_front.png");
+    textures["game_front"]        = LoadTexture("resources/game/front.png");
+    textures["game_hex_table"]    = LoadTexture("resources/game/hex_table.png");
+    textures["game_curtains"]     = LoadTexture("resources/game/curtains.png");
+    textures["game_bar"]          = LoadTexture("resources/game/bar.png");
+    textures["game_bar_face"]     = LoadTexture("resources/game/bar_face.png");
+    textures["game_pause_icon"]   = LoadTexture("resources/game/pause_icon.png");
 
     loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"]);
     loadAnimationFrames("resources/game/guy/idle", &animations["game_guy_idle"]);
