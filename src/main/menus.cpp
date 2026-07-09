@@ -19,7 +19,7 @@ Rectangle centerRect(int x, int y, float width, float height);
 void Game::drawMainMenu()
 {
     BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(DARKGRAY);
         GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
 
         if (GuiButton( centerRect( screen_width / 2
@@ -34,6 +34,42 @@ void Game::drawMainMenu()
                      , "End"))
         {}
             // current_window = WindowID::GAME_3D_EXAMPLE;
+
+    EndDrawing();
+}
+
+
+void Game::drawPause()
+{
+    BeginDrawing();
+        // ClearBackground(RAYWHITE);
+
+        // Draw render texture to screen, scaled if required
+        DrawTexturePro(target.texture, { 0, 0, (float)target.texture.width, -(float)target.texture.height },
+            { 0, 0, (float)target.texture.width, (float)target.texture.height }, { 0, 0 }, 0.0f, WHITE);
+
+        DrawRectangle(0, 0, screen_width, screen_height, { 0, 0, 0, 200 });
+
+        if (GuiButton( centerRect( screen_width / 2
+                                 , screen_height / 2 - 45
+                                 , 250, 40)
+                     , "Continue"))
+            current_window = WindowID::GAME;
+
+        if (GuiButton( centerRect( screen_width / 2
+                                 , screen_height / 2
+                                 , 200, 40)
+                     , "Restart"))
+        {
+            current_window = WindowID::GAME;
+            resetGame();
+        }
+
+        if (GuiButton( centerRect( screen_width / 2
+                                 , screen_height / 2 + 45
+                                 , 150, 40)
+                     , "End"))
+            current_window = WindowID::MAIN_MENU;
 
     EndDrawing();
 }

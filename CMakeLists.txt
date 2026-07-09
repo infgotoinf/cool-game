@@ -32,8 +32,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/main/game.cpp
         src/main/draw_game.cpp
-        src/main/draw_main_menu.cpp
-        src/main/draw_pause.cpp
+        src/main/menus.cpp
 
     PUBLIC
         FILE_SET headers

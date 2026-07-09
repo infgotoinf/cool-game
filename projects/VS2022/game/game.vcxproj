@@ -363,9 +363,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\main\main.cpp" />
     <ClCompile Include="..\..\..\src\main\game.cpp" />
-    <ClCompile Include="..\..\..\src\main\draw_pause.cpp" />
     <ClCompile Include="..\..\..\src\main\draw_game.cpp" />
-    <ClCompile Include="..\..\..\src\main\draw_main_menu.cpp" />
+    <ClCompile Include="..\..\..\src\main\menus.cpp" />
     <ClCompile Include="..\..\..\src\main\include\game.hpp" />
     <ClCompile Include="..\..\..\src\main\include\window_codes.hpp" />
   </ItemGroup>

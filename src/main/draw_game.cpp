@@ -1,9 +1,15 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
-#include "window_codes.hpp"
 
 #include <cmath>
+
+#include "window_codes.hpp"
+
+
+
+constexpr static Vector2 GUY_COLOR_SPREAD = { 25, 75 };
+constexpr static Vector2 GUY_SPEED_SPREAD = { 5, 15 };
 
 
 
@@ -22,20 +28,132 @@ void drawHexTable(float x, float y, float size, Color color);
 void drawRectangleUp(float x, float y, float width, float height, Color color)
 {
     DrawRectangle(x, y - height, width, height, color);
-};
+}
 
 
+///----------------------------------------------------------------------------
+/// Formats time to MM:SS;CC
+///----------------------------------------------------------------------------
 const char* formatTime(float time)
 {
     return TextFormat( "%02d:%02d;%02d"
                      , static_cast<int>(time / 60)
                      , static_cast<int>(time) % 60
                      , static_cast<int>(time * 100) % 100);
-};
+}
 
 
-void Game::drawGame() {
+void Game::sortGuysByPosY()
+{
+    for (int i = 0; i < guys.size(); ++i)
+        for (int j = i + 1; j < guys.size(); ++j)
+            if (guys[i].pos.y > guys[j].pos.y)
+                std::swap(guys[i], guys[j]);
+}
 
+
+Guy Game::createRandomGuy()
+{
+    Vector2 pos = { static_cast<float>(GetRandomValue(72, 578))
+                  , static_cast<float>(140 + GetRandomValue(0, 25)) };
+    int random_color_skip1 = GetRandomValue(0, 2);
+    int random_color_skip2 = GetRandomValue(0, 2);
+    Color color = { static_cast<unsigned char>(random_color_skip1 == 0 || random_color_skip2 == 0 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
+                  , static_cast<unsigned char>(random_color_skip1 == 1 || random_color_skip2 == 1 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y))
+                  , static_cast<unsigned char>(random_color_skip1 == 2 || random_color_skip2 == 2 ? 0 : GetRandomValue(GUY_COLOR_SPREAD.x, GUY_COLOR_SPREAD.y)), 255 };
+    float speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1;
+    GuyState state = GuyState::WALK;
+    int frame = (state == WALK ? GetRandomValue(0, animations["game_guy_walk"].size())
+                               : GetRandomValue(0, animations["game_guy_idle"].size()));
+    int state_change_cycles_left = GetRandomValue(2, 20);
+    bool is_moving_forward = GetRandomValue(0, 1);
+
+    return Guy { pos, color, speed, frame, state_change_cycles_left, state, is_moving_forward };
+}
+
+
+void Game::drawGuys(int shift_x, int shift_y)
+{
+    static int frame_counter = 0;
+    static int animation_fps = 10;
+    ++frame_counter;
+
+    // Updating guys' frames, animations, values
+    if (frame_counter >= 60 / animation_fps)
+    {
+        for (Guy &guy : guys)
+        {
+            ++guy.frame;
+            // frame, state_change_cycles_left change
+            switch (guy.state)
+            {
+            case GuyState::WALK:
+                if (guy.frame >= animations["game_guy_walk"].size())
+                {
+                    guy.frame = 0;
+                    --guy.state_change_cycles_left;
+                }
+                break;
+
+            case GuyState::IDLE:
+            default:
+                if (guy.frame >= animations["game_guy_idle"].size())
+                {
+                    guy.frame = 0;
+                    --guy.state_change_cycles_left;
+                }
+                break;
+            }
+
+            // state, is_moving_forward, state_change_cycles_left change
+            if (guy.state_change_cycles_left <= 0)
+            {
+                guy.state = (guy.state == WALK ? IDLE : WALK);
+                // 33% chance to turn back
+                bool was_moving_forward = guy.is_moving_forward;
+                guy.is_moving_forward = (GetRandomValue(0, 2) ? guy.is_moving_forward
+                                                              : !guy.is_moving_forward);
+                guy.state_change_cycles_left = (guy.state == IDLE ? GetRandomValue(2, 20)
+                                                                  : GetRandomValue(1, 10));
+                if (was_moving_forward != guy.is_moving_forward)
+                {
+                    guy.speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1;
+                }
+            }
+        }
+        frame_counter = 0;
+    }
+
+    for (Guy &guy : guys)
+    {
+        // Drawing a new guy if out of bounds
+        if (guy.pos.x < 72 || guy.pos.x > 648)
+        {
+            guy = createRandomGuy();
+            guy.pos.x = guy.is_moving_forward ? 72 : 648;
+            sortGuysByPosY();
+        }
+
+        // Moving a walking guy
+        if (guy.state == WALK) guy.pos.x += (static_cast<bool>(guy.is_moving_forward)
+                                          ? guy.speed : -guy.speed);
+
+        // Will draw guy's hitbox
+        // DrawRectangleRec(guy.getHitbox(), GOLD);
+
+        // Drawing guys
+        DrawTexture( guy.state == WALK
+                   ? (guy.is_moving_forward ? animations["game_guy_walk"][guy.frame]
+                                            : animations["game_guy_walk_back"][guy.frame])
+                   : (guy.is_moving_forward ? animations["game_guy_idle"][guy.frame]
+                                            : animations["game_guy_idle_back"][guy.frame])
+                   , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+    }
+}
+
+
+void Game::drawGame()
+{
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
@@ -45,12 +163,14 @@ void Game::drawGame() {
 
         // In Krita I properly allign all those objects, but still we need to hardcode
         // a lot of values
-        float size_10th = screen_height * 0.1;
+        static float size_10th = screen_height * 0.1;
 
         // Interface base
         DrawTexture(textures["game_back"], size_10th, 0, WHITE);
         DrawTexture(textures["game_middle"], size_10th, size_10th, WHITE);
+        drawGuys(0, 0);
         DrawTexture(textures["game_front"], 0, 0, WHITE);
+        // DrawRectangle(72, 140, 578, 165, WHITE); // Guy walk area
 
         // Bar
         DrawRectangle(size_10th * 8.55, size_10th * 1.55, size_10th * 0.85, size_10th * 6.5, DARKGRAY);
@@ -80,9 +200,6 @@ void Game::drawGame() {
         {
             current_window = WindowID::PAUSE;
         }
-
-        // Draw
-
 
     EndTextureMode();
 

@@ -4,13 +4,40 @@
 #include "raylib.h"
 
 #include <map>
+#include <vector>
 
 #include "window_codes.hpp"
 
 
 
-class Game {
+enum GuyState : unsigned short
+{
+    WALK
+   ,IDLE
+};
+
+
+struct Guy
+{
+    Vector2 pos;
+    Color color;
+    float speed;
+    int frame;
+    int state_change_cycles_left; ///< Animation cycles left till state changed
+    GuyState state;
+    bool is_moving_forward;
+
+    Rectangle getHitbox() {
+        return { pos.x + 30, pos.y+ 16, 46, 120 }; // Hardcoding the hitboxes
+    }
+};
+
+
+class Game
+{
+    std::map<const char*, std::vector<Texture2D>> animations;
     std::map<const char*, Texture2D> textures;
+    std::vector<Guy> guys;
     Camera2D camera;
     RenderTexture2D target = { 0 };
     float game_start_timestamp;
@@ -48,19 +75,18 @@ public:
     ///------------------------------------------------------------------------
     void shakeScreen(int shake_ammount, float shake_supressor);
 
-    ///------------------------------------------------------------------------
-    /// Draws main menu screen.
-    ///------------------------------------------------------------------------
+    // Guy/guys related
+    Guy createRandomGuy();
+
+    void sortGuysByPosY();
+
+    void drawGuys(int shift_x, int shift_y);
+
+    // Screens
     void drawMainMenu();
 
-    ///------------------------------------------------------------------------
-    /// Draws game screen.
-    ///------------------------------------------------------------------------
     void drawGame();
 
-    ///------------------------------------------------------------------------
-    /// Draws pause screen.
-    ///------------------------------------------------------------------------
     void drawPause();
 };
 

@@ -82,15 +82,15 @@ void updateDrawFrame(void)
 {
     switch (game->current_window)
     {
-    case WindowID::GAME:
+    case GAME:
         game->drawGame();
         break;
 
-    case WindowID::PAUSE:
+    case PAUSE:
         game->drawPause();
         break;
 
-    case WindowID::MAIN_MENU:
+    case MAIN_MENU:
     default:
         game->drawMainMenu();
     }
