@@ -54,7 +54,10 @@ void Game::drawPause()
                                  , screen_height / 2 - 45
                                  , 250, 40)
                      , "Continue"))
+        {
+            game_start_timestamp += GetTime() - game_pause_timestamp;
             current_window = WindowID::GAME;
+        }
 
         if (GuiButton( centerRect( screen_width / 2
                                  , screen_height / 2

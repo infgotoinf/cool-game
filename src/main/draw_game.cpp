@@ -8,9 +8,12 @@
 
 
 
+constexpr static int ANIMATION_FPS = 10;
 constexpr static Vector2 GUY_COLOR_SPREAD = { 25, 75 };
 constexpr static Vector2 GUY_SPEED_SPREAD = { 5, 15 };
-
+constexpr static Color BAR_COLOR100 = { 215, 0, 255, 255 }; // PURPLE
+constexpr static Color BAR_COLOR0 = { 255, 0, 0, 255 }; // RED
+constexpr static float CURSE_EXTREME_VALUE = 5.0f;
 
 
 ///----------------------------------------------------------------------------
@@ -75,11 +78,10 @@ Guy Game::createRandomGuy()
 void Game::drawGuys(int shift_x, int shift_y)
 {
     static int frame_counter = 0;
-    static int animation_fps = 10;
     ++frame_counter;
 
     // Updating guys' frames, animations, values
-    if (frame_counter >= 60 / animation_fps)
+    if (frame_counter >= FPS / ANIMATION_FPS)
     {
         for (Guy &guy : guys)
         {
@@ -152,8 +154,37 @@ void Game::drawGuys(int shift_x, int shift_y)
 }
 
 
+void Game::regenCurse() {
+    curse_value = SECONDS_TO_CURSE;
+}
+
+
+void Game::drainCurse() {
+    curse_value -= curse_drain_speed / FPS;
+}
+
+
 void Game::drawGame()
 {
+    drainCurse();
+    if (curse_value <= 0) curse_value = SECONDS_TO_CURSE;
+
+    Color bar_color = { static_cast<unsigned char>(( BAR_COLOR100.r * curse_value
+                        + BAR_COLOR0.r * (SECONDS_TO_CURSE - curse_value)) / SECONDS_TO_CURSE)
+                      , 0
+                      , static_cast<unsigned char>(( BAR_COLOR100.b * curse_value
+                        + BAR_COLOR0.b * (SECONDS_TO_CURSE - curse_value)) / SECONDS_TO_CURSE)
+                      , 255 };
+
+    Color curse_drain_speed_color =
+                      { static_cast<unsigned char>(( BAR_COLOR0.r * (curse_drain_speed - 1)
+                        + BAR_COLOR100.r * (CURSE_EXTREME_VALUE - curse_drain_speed)) / CURSE_EXTREME_VALUE)
+                      , 0
+                      , static_cast<unsigned char>(( BAR_COLOR0.b * (curse_drain_speed - 1)
+                        + BAR_COLOR100.b * (CURSE_EXTREME_VALUE - (curse_drain_speed - 1))) / CURSE_EXTREME_VALUE)
+                      , 255 };
+
+
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
@@ -170,12 +201,14 @@ void Game::drawGame()
         DrawTexture(textures["game_middle"], size_10th, size_10th, WHITE);
         drawGuys(0, 0);
         DrawTexture(textures["game_front"], 0, 0, WHITE);
-        // DrawRectangle(72, 140, 578, 165, WHITE); // Guy walk area
+        // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
 
         // Bar
         DrawRectangle(size_10th * 8.55, size_10th * 1.55, size_10th * 0.85, size_10th * 6.5, DARKGRAY);
-        drawRectangleUp(size_10th * 8.55, size_10th * 8.05, size_10th * 0.85, size_10th * 4.5, PURPLE);
-        DrawRectangle(size_10th * 8.05, size_10th * 7.9, size_10th * 1.85, size_10th * 1.8, PURPLE);
+        // Curse
+        drawRectangleUp(size_10th * 8.55, size_10th * 8.05, size_10th * 0.85
+                       , size_10th * 6.5 / 20 * curse_value, bar_color);
+        DrawRectangle(size_10th * 8.05, size_10th * 7.9, size_10th * 1.85, size_10th * 1.8, bar_color);
         DrawTexture(textures["game_bar_face"], size_10th * 8, size_10th * 8, WHITE);
         DrawTexture(textures["game_bar"], size_10th * 8, size_10th * 1.5, WHITE);
 
@@ -187,17 +220,18 @@ void Game::drawGame()
         DrawText(formatTime(GetTime() - game_start_timestamp), 90, 13, 40, DARKGRAY);
 
         // Curse Value
-        DrawText( TextFormat("%10.2fX", curse_value)
+        DrawText( TextFormat("%10.2fX", curse_drain_speed)
                 // idk if this hardcoded value will work, but ok
-                , size_10th * 9 - MeasureText(TextFormat("%10.2fX", curse_value), 40) * 0.75
-                , size_10th, 40, PURPLE);
+                , size_10th * 9 - MeasureText(TextFormat("%10.2fX", curse_drain_speed), 40) * 0.75
+                , size_10th, 40, curse_drain_speed_color);
 
         // Pause
-        // DrawRectangle(18, 11, 40, 40, WHITE);
+        // DrawRectangle(18, 11, 40, 40, WHITE); // Draw pause hitbox
         DrawTexture(textures["game_pause_icon"], 20, 13, BLACK);
         if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
           && CheckCollisionPointRec(GetMousePosition(), {18, 11, 40, 40}))
         {
+            game_pause_timestamp = GetTime();
             current_window = WindowID::PAUSE;
         }
 

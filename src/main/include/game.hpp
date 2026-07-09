@@ -10,6 +10,11 @@
 
 
 
+constexpr static float SECONDS_TO_CURSE = 20.0f;
+constexpr static int FPS = 60;
+
+
+
 enum GuyState : unsigned short
 {
     WALK
@@ -28,7 +33,7 @@ struct Guy
     bool is_moving_forward;
 
     Rectangle getHitbox() {
-        return { pos.x + 30, pos.y+ 16, 46, 120 }; // Hardcoding the hitboxes
+        return { pos.x + 30, pos.y + 16, 46, 120 }; // Hardcoding the hitboxes
     }
 };
 
@@ -41,9 +46,12 @@ class Game
     Camera2D camera;
     RenderTexture2D target = { 0 };
     float game_start_timestamp;
+    float game_pause_timestamp;
     float curse_value; ///< Thing that drains in the game bar
+    float curse_drain_speed;
 
     bool is_gameover;
+    bool is_tutorial_over;
 
     constexpr static int screen_width = 720;
     constexpr static int screen_height = 720;
@@ -74,6 +82,10 @@ public:
     /// @param[in] shake_supressor Value to gradually supress the screen shake.
     ///------------------------------------------------------------------------
     void shakeScreen(int shake_ammount, float shake_supressor);
+
+    void regenCurse();
+
+    void drainCurse();
 
     // Guy/guys related
     Guy createRandomGuy();

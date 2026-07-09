@@ -95,6 +95,9 @@ void Game::resetGame()
     camera.zoom = 1.0f;
 
     is_gameover = false;
+    is_tutorial_over = false;
+    curse_value = SECONDS_TO_CURSE;
+    curse_drain_speed = 1.0f;
 
     SetRandomSeed(GetTime());
     guys.clear();
