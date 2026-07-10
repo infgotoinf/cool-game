@@ -44,6 +44,7 @@ class Game
     std::map<const char*, Texture2D> textures;
     std::vector<Guy> guys;
     Camera2D camera;
+    Font font;
     RenderTexture2D target = { 0 };
     float game_start_timestamp;
     float game_pause_timestamp;

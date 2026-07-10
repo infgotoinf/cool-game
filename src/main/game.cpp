@@ -4,14 +4,23 @@
 
 
 
-void loadAnimationFrames(const char *dir_path, std::vector<Texture2D> *frames)
+enum AnimationType : unsigned char
+{
+    GUY_ANIMATION
+   ,NOT_GUY_ANIMATION
+};
+
+void loadAnimationFrames(const char *dir_path, std::vector<Texture2D> *frames, AnimationType animation_type)
 {
     FilePathList frame_files = LoadDirectoryFiles(dir_path);
     for (int i = 0; i < frame_files.count; ++i)
     {
         Image image = LoadImage(frame_files.paths[i]);
-        ImageColorInvert(&image);
-        ImageColorTint(&image, {100, 100, 100, 255});
+        if (animation_type == GUY_ANIMATION)
+        {
+            ImageColorInvert(&image);
+            ImageColorTint(&image, {100, 100, 100, 255});
+        }
         frames->push_back(LoadTextureFromImage(image));
         UnloadImage(image);
     }
@@ -26,6 +35,7 @@ Game::Game()
     SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT);
     InitWindow(screen_width, screen_height, "HexAgony");
 
+    // Load static textures
     textures["game_back"]         = LoadTexture("resources/game/back.png");
     textures["game_middle"]       = LoadTexture("resources/game/middle.png");
     textures["game_almost_front"] = LoadTexture("resources/game/almost_front.png");
@@ -36,8 +46,10 @@ Game::Game()
     textures["game_bar_face"]     = LoadTexture("resources/game/bar_face.png");
     textures["game_pause_icon"]   = LoadTexture("resources/game/pause_icon.png");
 
-    loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"]);
-    loadAnimationFrames("resources/game/guy/idle", &animations["game_guy_idle"]);
+    // Load animations
+    loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"], GUY_ANIMATION);
+    loadAnimationFrames("resources/game/guy/idle", &animations["game_guy_idle"], GUY_ANIMATION);
+    // Create "back" variations
     for (Texture2D frame : animations["game_guy_walk"])
     {
         Image image = LoadImageFromTexture(frame);
@@ -53,6 +65,16 @@ Game::Game()
         UnloadImage(image);
     }
 
+    // Load cursors
+    loadAnimationFrames("resources/game/cursor/free", &animations["game_cursor_free"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/cursor/grab", &animations["game_cursor_grab"], NOT_GUY_ANIMATION);
+
+    // Load fonts
+    font = LoadFontEx("resources/fonts/my-old-remington/myoldrem.ttf", 64, 0, 0);
+    // font = LoadFontEx("resources/fonts/x-typewriter/XTypewriter-Regular.ttf", 64, 0, 0);
+    // font = LoadFontEx("resources/fonts/x-typewriter/XTypewriter-Bold.ttf", 64, 0, 0);
+
+    // Target setup
     target = LoadRenderTexture(screen_width, screen_height);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 

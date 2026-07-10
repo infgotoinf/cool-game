@@ -3,6 +3,7 @@
 #include "raylib.h"
 
 #include <cmath>
+#include <vector>
 
 #include "window_codes.hpp"
 
@@ -46,6 +47,37 @@ const char* formatTime(float time)
 }
 
 
+void drawCustomCursor(const std::vector<Texture2D> &animation)
+{
+    static int frame_counter = 0;
+    static int frame = 0;
+
+    ++frame_counter;
+    if (frame_counter >= ANIMATION_FPS)
+    {
+        frame_counter = 0;
+        ++frame;
+        if (frame >= animation.size()) frame = 0;
+    }
+    DrawTexture( animation[frame]
+               , static_cast<float>(GetMouseX() - animation[frame].width * 0.5)
+               , static_cast<float>(GetMouseY() - animation[frame].height * 0.5)
+               , WHITE);
+}
+
+
+Rectangle getCursorHitbox()
+{
+    static float cursor_size = 60;
+    Rectangle rec = { (float) GetMouseX() - cursor_size / 2
+                    , (float) GetMouseY() - cursor_size / 2
+                    , cursor_size, cursor_size };
+    // DrawRectangleRec(rec, BLACK);
+    // DrawRectangleLinesEx(rec, 1, WHITE);
+    return rec;
+}
+
+
 void Game::sortGuysByPosY()
 {
     for (int i = 0; i < guys.size(); ++i)
@@ -79,6 +111,8 @@ Guy Game::createRandomGuy()
 
 void Game::drawGuys(int shift_x, int shift_y)
 {
+    HideCursor();
+
     static int frame_counter = 0;
     ++frame_counter;
 
@@ -227,13 +261,18 @@ void Game::drawGame()
         DrawTexture(textures["game_bar"], size_10th * 8 - 20, size_10th * 1.5 - 25, WHITE);
 
         // Time
-        DrawText(formatTime(GetTime() - game_start_timestamp), 90, 13, 40, { 255, 255, 255, 50 });
+        DrawTextEx(font, formatTime(GetTime() - game_start_timestamp)
+                       , { 90, 12 }
+                       , 60, 1
+                       , { 255, 255, 255, 50 });
 
         // Curse drain speed
-        DrawText( TextFormat("%10.2fX", curse_drain_speed)
-                // idk if this hardcoded value will work, but ok
-                , size_10th * 9 - MeasureText(TextFormat("%10.2fX", curse_drain_speed), 40) * 0.75
-                , size_10th - 10, 40, curse_drain_speed_color);
+        DrawTextEx(font, TextFormat("%10.2fX", curse_drain_speed)
+                       , { static_cast<float>( size_10th * 9
+                                             - MeasureTextEx(font, TextFormat("%10.2fX", curse_drain_speed), 60, 1).x * 0.84)
+                       , size_10th - 12 }
+                       , 60, 1
+                       , curse_drain_speed_color);
 
     EndTextureMode();
 
@@ -253,12 +292,18 @@ void Game::drawGame()
     SetShaderValue(vignette, colLoc, &v_color, SHADER_UNIFORM_VEC3);
 
     // Pause
-    if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
-      && CheckCollisionPointRec(GetMousePosition(), {18, 11, 40, 40}))
+    static Color pause_color;
+    if (CheckCollisionRecs(getCursorHitbox(), {18, 11, 40, 40}))
     {
-        game_pause_timestamp = GetTime();
-        current_window = WindowID::PAUSE;
+        pause_color = { 255, 255, 255, 100 };
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            ShowCursor();
+            current_window = WindowID::PAUSE;
+            game_pause_timestamp = GetTime();
+        }
     }
+    else pause_color = { 255, 255, 255, 50 };
 
     // Render to screen (main framebuffer)
     BeginDrawing();
@@ -269,17 +314,22 @@ void Game::drawGame()
 
         // Draw vignette
         // https://github.com/Apfelstrudel-Technologien/raylibVignette/blob/0795e875632cdd891a3f11b077bbe4da0ab176fc/main.c
-        BeginShaderMode(vignette);
+        // BeginShaderMode(vignette);
 
-            DrawTextureRec(v_texture.texture, { 0, 0
-                                              , static_cast<float>(v_texture.texture.width)
-                                              , static_cast<float>(-v_texture.texture.height) }, (Vector2){ 0, 0 }, BLANK);
+        //     DrawTextureRec(v_texture.texture, { 0, 0
+        //                                       , static_cast<float>(v_texture.texture.width)
+        //                                       , static_cast<float>(-v_texture.texture.height) }, (Vector2){ 0, 0 }, BLANK);
 
-        EndShaderMode();
+        // EndShaderMode();
 
         // Pause
         // DrawRectangle(18, 11, 40, 40, WHITE); // Draw pause hitbox
-        DrawTexture(textures["game_pause_icon"], 20, 13, BLACK);
+        DrawRectangle(20,           11, 14, 38, pause_color);
+        DrawRectangle(20 + 38 - 14, 11, 14, 38, pause_color);
+
+        // Cursor
+        drawCustomCursor(IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? animations["game_cursor_grab"] : animations["game_cursor_free"]);
+        getCursorHitbox();
 
     EndDrawing();
 }

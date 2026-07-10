@@ -23,13 +23,16 @@ void Game::drawMainMenu()
         GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
 
         if (GuiButton( centerRect( screen_width / 2
-                                 , screen_height / 2
+                                 , screen_height / 2 + 45
                                  , 250, 40)
                      , "Begin"))
+        {
+            HideCursor();
             current_window = WindowID::GAME;
+        }
 
         if (GuiButton( centerRect( screen_width / 2
-                                 , screen_height / 2 + 45
+                                 , screen_height / 2 + 90
                                  , 250, 40)
                      , "End"))
         {}
@@ -41,6 +44,7 @@ void Game::drawMainMenu()
 
 void Game::drawPause()
 {
+    ShowCursor();
     BeginDrawing();
         // ClearBackground(RAYWHITE);
 
@@ -55,8 +59,9 @@ void Game::drawPause()
                                  , 250, 40)
                      , "Continue"))
         {
-            game_start_timestamp += GetTime() - game_pause_timestamp;
+            HideCursor();
             current_window = WindowID::GAME;
+            game_start_timestamp += GetTime() - game_pause_timestamp;
         }
 
         if (GuiButton( centerRect( screen_width / 2
@@ -64,6 +69,7 @@ void Game::drawPause()
                                  , 200, 40)
                      , "Restart"))
         {
+            HideCursor();
             current_window = WindowID::GAME;
             resetGame();
         }
