@@ -1,6 +1,7 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
+#include "raymath.h" // For Vector2Distance
 
 #include <cmath>
 #include <vector>
@@ -47,6 +48,7 @@ const char* formatTime(float time)
 }
 
 
+
 void drawCustomCursor(const std::vector<Texture2D> &animation)
 {
     static int frame_counter = 0;
@@ -77,6 +79,54 @@ Rectangle getCursorHitbox()
     return rec;
 }
 
+
+
+void Game::dragObjects()
+{
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) and not is_dragging)
+    {
+        Rectangle cursor_hibox = getCursorHitbox();
+        for (DragableObject& obj : dragable_objects)
+        {
+            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, cursor_hibox))
+            {
+                is_dragging = true;
+                dragged_object = &obj;
+                break;
+            }
+        }
+    }
+    else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) and is_dragging)
+    {
+        dragged_object->pos = GetMousePosition();
+    }
+    else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) and is_dragging)
+    {
+        is_dragging = false;
+        dragged_object = nullptr;
+    }
+
+}
+
+void Game::drawDragableObjects()
+{
+    for (DragableObject obj : dragable_objects)
+    {
+        DrawRectangle(obj.pos.x, obj.pos.y, 40, 40, RED);
+        if (obj.hitbox_visible)
+        {
+            DrawCircle(obj.pos.x, obj.pos.y, obj.hitbox_radius, { 120, 167, 210, 125 }); // Hardcoded debug hitbox color
+        }
+        //DrawTexture(obj.texture, obj.pos.x - obj.texture.width/2, obj.pos.y - obj.texture.height/2, WHITE);
+    }
+}
+
+void Game::createDragableObject(Texture2D texture, Vector2 position, unsigned radius, bool hitbox_visible)
+{
+    DragableObject obj = { position, texture, radius, hitbox_visible};
+
+    dragable_objects.push_back(obj);
+}
 
 void Game::sortGuysByPosY()
 {
