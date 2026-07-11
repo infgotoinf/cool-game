@@ -90,6 +90,13 @@ Game::Game()
     sounds["button_click"] = LoadSound("resources/audio/button/click.wav");
     sounds["button_hover"] = LoadSound("resources/audio/button/hover.wav");
 
+    // Load music
+    music["inadequate"] = LoadMusicStream("resources/music/inadequate.mp3");
+    for ( std::map<const char*, Music>::iterator it = music.begin()
+        ; it != music.end(); ++it)
+    {
+    }
+
     // Gen noise
     for (int i = 0; i < 16; ++i)
     {
@@ -162,7 +169,7 @@ void Game::resetGame()
     curse_value = SECONDS_TO_CURSE;
     curse_drain_speed = 1.0f;
 
-    SetRandomSeed(GetTime());
+    SetRandomSeed(GetTime() * 100);
     guys.clear();
     for (int i = 0; i < 10; ++i)
         guys.push_back(createRandomGuy());

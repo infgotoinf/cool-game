@@ -204,6 +204,15 @@ void Game::drainCurse() {
 
 void Game::drawGame()
 {
+    if (!IsMusicStreamPlaying(music["inadequate"]))
+    {
+        PlayMusicStream(music["inadequate"]);
+    }
+    else
+    {
+        UpdateMusicStream(music["inadequate"]);
+    }
+
     // https://github.com/Apfelstrudel-Technologien/raylibVignette/blob/main/main.c
     // static Shader vignette = LoadShader(0, "resources/vignette.fs");
     // static int rLoc = GetShaderLocation(vignette, "radius");
@@ -306,6 +315,7 @@ void Game::drawGame()
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_ESCAPE))
         {
             ShowCursor();
+            PauseMusicStream(music["inadequate"]);
             PlaySound(sounds["button_click"]);
             current_window = WindowID::PAUSE;
             game_pause_timestamp = GetTime();

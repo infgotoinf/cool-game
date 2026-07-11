@@ -83,3 +83,4 @@ android.*
 .venv
 *~
 .log
+*.time-report.txt

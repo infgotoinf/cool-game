@@ -1,6 +1,7 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
+#include <cstdlib>
 
 
 
@@ -39,25 +40,16 @@ bool Game::customButton(Texture2D& texture, int pos_x, int pos_y, ButtonStatus* 
 
 void Game::drawMainMenu()
 {
+    if (!IsMusicStreamPlaying(music["inadequate"]))
+    {
+        PlayMusicStream(music["inadequate"]);
+    }
+    else
+    {
+        UpdateMusicStream(music["inadequate"]);
+    }
+
     BeginDrawing();
-        // ClearBackground(DARKGRAY);
-        // GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-
-        // if (GuiButton( centerRect( screen_width / 2
-        //                          , screen_height / 2 + 45
-        //                          , 250, 40)
-        //              , "Begin"))
-        // {
-        //     HideCursor();
-        //     current_window = WindowID::GAME;
-        // }
-
-        // if (GuiButton( centerRect( screen_width / 2
-        //                          , screen_height / 2 + 90
-        //                          , 250, 40)
-        //              , "End"))
-        // {}
-            // current_window = WindowID::GAME_3D_EXAMPLE;
 
         DrawTexture(textures["menu_back"],   -36, -36, WHITE);
         DrawTexture(textures["menu_front"],  -36 + getCursorPosFromCenter().x / 50, -36 + getCursorPosFromCenter().y / 50, WHITE);
@@ -70,12 +62,14 @@ void Game::drawMainMenu()
                                                   , screen_height * 0.5 + 50 + getCursorPosFromCenter().y / 20, &menu_begin_status))
         {
             HideCursor();
+            Game::resetGame();
             current_window = WindowID::GAME;
         }
-        else if (customButton(textures["buttons_end"], screen_width * 0.5 + getCursorPosFromCenter().x / 20
-                                                  , screen_height * 0.5 + 100 + getCursorPosFromCenter().y / 20, &menu_end_status))
-        {
-        }
+        // else if (customButton(textures["buttons_end"], screen_width * 0.5 + getCursorPosFromCenter().x / 20
+        //                                           , screen_height * 0.5 + 100 + getCursorPosFromCenter().y / 20, &menu_end_status))
+        // {
+        //     window_should_close = true;
+        // }
 
     EndDrawing();
 }
@@ -83,9 +77,7 @@ void Game::drawMainMenu()
 
 void Game::drawPause()
 {
-    ShowCursor();
     BeginDrawing();
-        // ClearBackground(RAYWHITE);
 
         // Draw render texture to screen, scaled if required
         DrawTexturePro(target.texture, { 0, 0, (float)target.texture.width, -(float)target.texture.height },
@@ -93,49 +85,29 @@ void Game::drawPause()
 
         DrawRectangle(0, 0, screen_width, screen_height, { 0, 0, 0, 200 });
 
-        // if (GuiButton( centerRect( screen_width / 2
-        //                          , screen_height / 2 - 45
-        //                          , 250, 40)
-        //              , "Continue"))
-        // {
-        //     HideCursor();
-        //     current_window = WindowID::GAME;
-        //     game_start_timestamp += GetTime() - game_pause_timestamp;
-        // }
-
-        // if (GuiButton( centerRect( screen_width / 2
-        //                          , screen_height / 2
-        //                          , 200, 40)
-        //              , "Restart"))
-        // {
-        //     HideCursor();
-        //     current_window = WindowID::GAME;
-        //     resetGame();
-        // }
-
-        // if (GuiButton( centerRect( screen_width / 2
-        //                          , screen_height / 2 + 45
-        //                          , 150, 40)
-        //              , "End"))
-        //     current_window = WindowID::MAIN_MENU;
-
         static ButtonStatus pause_continue_status = NOT_HOVERED;
         static ButtonStatus pause_restart_status = NOT_HOVERED;
         static ButtonStatus pause_end_status = NOT_HOVERED;
-        if (customButton(textures["buttons_continue"], screen_width / 2, screen_height / 2 - 50, &pause_continue_status))
+        if (customButton(textures["buttons_continue"], screen_width / 2, screen_height / 2 - 50, &pause_continue_status)
+          || IsKeyPressed(KEY_ESCAPE))
         {
+            ResumeMusicStream(music["inadequate"]);
             HideCursor();
             current_window = WindowID::GAME;
             game_start_timestamp += GetTime() - game_pause_timestamp;
         }
         else if (customButton(textures["buttons_restart"], screen_width / 2, screen_height / 2, &pause_restart_status))
         {
+            ResumeMusicStream(music["inadequate"]);
+            StopMusicStream(music["inadequate"]);
             HideCursor();
             current_window = WindowID::GAME;
             resetGame();
         }
         else if (customButton(textures["buttons_end"], screen_width / 2, screen_height / 2 + 50, &pause_end_status))
         {
+            ResumeMusicStream(music["inadequate"]);
+            StopMusicStream(music["inadequate"]);
             current_window = WindowID::MAIN_MENU;
         }
 

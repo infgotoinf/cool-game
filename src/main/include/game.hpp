@@ -54,6 +54,7 @@ class Game
     std::map<const char*, std::vector<Texture2D>> animations;
     std::map<const char*, Texture2D> textures;
     std::map<const char*, Sound> sounds;
+    std::map<const char*, Music> music;
     std::vector<Texture2D> noise;
     std::vector<Guy> guys;
     Camera2D camera;
