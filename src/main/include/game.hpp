@@ -10,13 +10,26 @@
 
 
 
-constexpr static float SECONDS_TO_CURSE = 20.0f;
+constexpr static float SECONDS_TO_CURSE = 15.0f;
 constexpr static int FPS = 60;
 
 
 static Vector2 getCursorPosFromCenter()
 {
     return { static_cast<float>(360 - GetMouseX()), static_cast<float>(360 - GetMouseY()) };
+}
+
+
+
+///----------------------------------------------------------------------------
+/// Formats time to MM:SS;CC
+///----------------------------------------------------------------------------
+static const char* formatTime(float time)
+{
+    return TextFormat( "%02d:%02d;%02d"
+                     , static_cast<int>(time / 60)
+                     , static_cast<int>(time) % 60
+                     , static_cast<int>(time * 100) % 100);
 }
 
 
@@ -97,13 +110,14 @@ public:
     /// Shakes screen.
     ///
     /// @param[in] shake_ammount How strong is the shake.
-    /// @param[in] shake_supressor Value to gradually supress the screen shake.
     ///------------------------------------------------------------------------
-    void shakeScreen(int shake_ammount, float shake_supressor);
+    void shakeScreen(int shake_ammount);
 
     void regenCurse();
 
     void drainCurse();
+
+    void riseCurseDrainSpeed(int ammount);
 
     // Guy/guys related
     Guy createRandomGuy();
@@ -112,12 +126,16 @@ public:
 
     void drawGuys(int shift_x, int shift_y);
 
+    void drawFace(int shift_x, int shift_y);
+
     // Screens
     void drawMainMenu();
 
     void drawGame();
 
     void drawPause();
+
+    void drawGameOver();
 };
 
 #endif // GAME_HPP

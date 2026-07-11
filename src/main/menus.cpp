@@ -1,7 +1,6 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
-#include <cstdlib>
 
 
 
@@ -110,6 +109,39 @@ void Game::drawPause()
             StopMusicStream(music["inadequate"]);
             current_window = WindowID::MAIN_MENU;
         }
+
+    EndDrawing();
+}
+
+
+void Game::drawGameOver()
+{
+    BeginDrawing();
+
+        DrawRectangle(0, 0, screen_width, screen_height, { 40, 25, 0, 255 });
+
+        DrawTextEx(font, formatTime(GetTime() - game_start_timestamp)
+                       , { screen_width * 0.5, screen_height * 0.5 }
+                       , 60, 1
+                       , { 255, 255, 255, 50 });
+
+        static ButtonStatus game_over_restart_status = NOT_HOVERED;
+        static ButtonStatus game_over_end_status = NOT_HOVERED;
+        if (customButton(textures["buttons_restart"], screen_width / 2, screen_height / 2, &game_over_restart_status))
+        {
+            ResumeMusicStream(music["inadequate"]);
+            StopMusicStream(music["inadequate"]);
+            HideCursor();
+            current_window = WindowID::GAME;
+            resetGame();
+        }
+        else if (customButton(textures["buttons_end"], screen_width / 2, screen_height / 2 + 50, &game_over_end_status))
+        {
+            ResumeMusicStream(music["inadequate"]);
+            StopMusicStream(music["inadequate"]);
+            current_window = WindowID::MAIN_MENU;
+        }
+        DrawTexture(noise[static_cast<int>(GetTime() * 100) % noise.size()], 0, 0, {255, 255, 255, 20});
 
     EndDrawing();
 }

@@ -53,6 +53,9 @@ Game::Game()
     textures["game_bar_face"]     = LoadTexture("resources/game/bar_face.png");
     textures["game_pause_icon"]   = LoadTexture("resources/game/pause_icon.png");
 
+    // Objects
+    textures["game_object_knife"] = LoadTexture("resources/game/objects/knife.png");
+
     textures["menu_back"]   = LoadTexture("resources/menu/back.png");
     textures["menu_front"]  = LoadTexture("resources/menu/front.png");
     textures["menu_papers"] = LoadTexture("resources/menu/papers.png");
@@ -77,9 +80,15 @@ Game::Game()
         UnloadImage(image);
     }
 
+    loadAnimationFrames("resources/game/face/calm", &animations["game_face_calm"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/face/freakout", &animations["game_face_freakout"], NOT_GUY_ANIMATION);
+
     // Load cursors
     loadAnimationFrames("resources/game/cursor/free", &animations["game_cursor_free"], NOT_GUY_ANIMATION);
     loadAnimationFrames("resources/game/cursor/grab", &animations["game_cursor_grab"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/cursor/ready", &animations["game_cursor_ready"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/cursor/knife/hold", &animations["game_cursor_knife_hold"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/cursor/knife/swing", &animations["game_cursor_knife_swing"], NOT_GUY_ANIMATION);
 
     // Load fonts
     font = LoadFontEx("resources/fonts/my-old-remington/myoldrem.ttf", 64, 0, 0);
@@ -177,14 +186,4 @@ void Game::resetGame()
     sortGuysByPosY();
 
     game_start_timestamp = GetTime();
-}
-
-
-void Game::shakeScreen(int shake_ammount, float shake_stopper)
-{
-    camera.offset = { 0, 0 };
-    camera.rotation = 0.0f;
-
-    camera.offset.y += GetRandomValue(-shake_ammount, shake_ammount);
-    camera.offset.x += GetRandomValue(-shake_ammount, shake_ammount);
 }

@@ -9,7 +9,7 @@
 
 
 
-constexpr static int ANIMATION_FPS = 10;
+static int animation_fps = 8;
 constexpr static Vector2 GUY_COLOR_SPREAD = { 0, 125 };
 constexpr static Vector2 GUY_SPEED_SPREAD = { 5, 15 };
 constexpr static Color BAR_COLOR100 = { 215, 0, 255, 255 }; // PURPLE
@@ -35,25 +35,13 @@ void drawRectangleUp(float x, float y, float width, float height, Color color)
 }
 
 
-///----------------------------------------------------------------------------
-/// Formats time to MM:SS;CC
-///----------------------------------------------------------------------------
-const char* formatTime(float time)
-{
-    return TextFormat( "%02d:%02d;%02d"
-                     , static_cast<int>(time / 60)
-                     , static_cast<int>(time) % 60
-                     , static_cast<int>(time * 100) % 100);
-}
-
-
 void drawCustomCursor(const std::vector<Texture2D> &animation)
 {
     static int frame_counter = 0;
     static int frame = 0;
 
     ++frame_counter;
-    if (frame_counter >= ANIMATION_FPS)
+    if (frame_counter >= FPS / animation_fps)
     {
         frame_counter = 0;
         ++frame;
@@ -119,7 +107,7 @@ void Game::drawGuys(int shift_x, int shift_y)
     ++frame_counter;
 
     // Updating guys' frames, animations, values
-    if (frame_counter >= FPS / ANIMATION_FPS)
+    if (frame_counter >= FPS / animation_fps)
     {
         for (Guy &guy : guys)
         {
@@ -157,7 +145,7 @@ void Game::drawGuys(int shift_x, int shift_y)
                                                                   : GetRandomValue(1, 10));
                 if (was_moving_forward != guy.is_moving_forward)
                 {
-                    guy.speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1;
+                    guy.speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1 * curse_drain_speed;
                 }
             }
         }
@@ -189,6 +177,31 @@ void Game::drawGuys(int shift_x, int shift_y)
                                             : animations["game_guy_idle_back"][guy.frame])
                    , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
     }
+}
+
+
+void Game::drawFace(int shift_x, int shift_y)
+{
+    static int frame_counter = 0;
+    static int frame = 0;
+    ++frame_counter;
+    if (frame_counter >= FPS / animation_fps)
+    {
+        frame_counter = 0;
+        ++frame;
+        if (frame >= 3) frame = 0;
+    }
+    DrawTexture( animations[curse_value >= SECONDS_TO_CURSE / 3 ? "game_face_calm" : "game_face_freakout"][frame]
+               , 72 * 8 + shift_x, 72 * 8 + shift_y, WHITE);
+}
+
+
+void Game::shakeScreen(int shake_ammount)
+{
+    camera.offset = { 0, 0 };
+
+    camera.offset.y += GetRandomValue(-shake_ammount, shake_ammount);
+    camera.offset.x += GetRandomValue(-shake_ammount, shake_ammount);
 }
 
 
@@ -237,74 +250,94 @@ void Game::drawGame()
                         + BAR_COLOR100.b * (CURSE_EXTREME_VALUE - (curse_drain_speed - 1))) / CURSE_EXTREME_VALUE)
                       , 255 };
 
+    static float time = GetTime() - game_start_timestamp;
+    if (time < GetTime() - game_start_timestamp)
+    {
+        ++time;
+        curse_drain_speed += 0.01f;
+    }
+
+    if (curse_drain_speed <= 1.5f) animation_fps = 8;
+    else if (curse_drain_speed <= 2.0f) animation_fps = 9;
+    else if (curse_drain_speed <= 2.33f) animation_fps = 10;
+    else if (curse_drain_speed <= 2.66f) animation_fps = 11;
+    else if (curse_drain_speed <= 3.0f) animation_fps = 12;
+    else if (curse_drain_speed <= 3.25f) animation_fps = 13;
+    else if (curse_drain_speed <= 3.5f) animation_fps = 14;
+    else if (curse_drain_speed <= 3.75f) animation_fps = 15;
+    else if (curse_drain_speed <= 4.0f) animation_fps = 16;
+    else if (curse_drain_speed <= 4.20f) animation_fps = 17;
+    else if (curse_drain_speed <= 4.40f) animation_fps = 18;
+    else if (curse_drain_speed <= 4.60f) animation_fps = 19;
+    else if (curse_drain_speed <= 4.80f) animation_fps = 20;
+    else if (curse_drain_speed <= 5.00f) animation_fps = 21;
+    else if (curse_drain_speed >= 5.00f) animation_fps = 22;
+
+    shakeScreen( curse_value <= SECONDS_TO_CURSE / 3
+               ? SECONDS_TO_CURSE / 3 - curse_value : 0);
+
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
     // it could be useful for scaling or further shader postprocessing
     BeginTextureMode(target);
-        // ClearBackground(RAYWHITE);
+        BeginMode2D(camera);
 
-        // In Krita I properly allign all those objects, but still we need to hardcode
-        // a lot of values
-        static float size_10th = screen_height * 0.1;
+            // In Krita I properly allign all those objects, but still we need to hardcode
+            // a lot of values
+            static float size_10th = screen_height * 0.1;
 
-        // Interface base
-        DrawTexture(textures["game_back"], size_10th + getCursorPosFromCenter().x / 50
-                                         , getCursorPosFromCenter().y / 50, WHITE);
-        DrawTexture(textures["game_middle"], size_10th + getCursorPosFromCenter().x / 40
-                                           , getCursorPosFromCenter().y / 40, WHITE);
+            // Interface base
+            DrawTexture(textures["game_back"], size_10th + getCursorPosFromCenter().x / 50
+                                             , getCursorPosFromCenter().y / 50, WHITE);
+            DrawTexture(textures["game_middle"], size_10th + getCursorPosFromCenter().x / 40
+                                               , getCursorPosFromCenter().y / 40, WHITE);
 
-        drawGuys(getCursorPosFromCenter().x / 35, getCursorPosFromCenter().y / 35);
+            drawGuys(getCursorPosFromCenter().x / 35, getCursorPosFromCenter().y / 35);
 
-        DrawTexture(textures["game_almost_front"], size_10th + getCursorPosFromCenter().x / 20
-                                                 , getCursorPosFromCenter().y / 20 + 10, WHITE);
-        DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
-                                          , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);
-        // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
+            DrawTexture(textures["game_almost_front"], size_10th + getCursorPosFromCenter().x / 20
+                                                     , getCursorPosFromCenter().y / 20 + 10, WHITE);
+            DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
+                                              , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);
+            // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
 
-        // Hex table
-        drawHexTable( size_10th * 2.5 + 2 + getCursorPosFromCenter().x / 14
-                    , size_10th * 8   - 5 + getCursorPosFromCenter().y / 14
-                    , size_10th * 2 + 6, BLACK);
-        DrawTexture(textures["game_hex_table"], size_10th * 0.5f - 10.0f + getCursorPosFromCenter().x / 14
-                                              , size_10th         * 6.0f + getCursorPosFromCenter().y / 14
-                                              , WHITE);
+            // Hex table
+            drawHexTable( size_10th * 2.5 + 2 + getCursorPosFromCenter().x / 14
+                        , size_10th * 8   - 5 + getCursorPosFromCenter().y / 14
+                        , size_10th * 2 + 6, BLACK);
+            DrawTexture(textures["game_hex_table"], size_10th * 0.5f - 10.0f + getCursorPosFromCenter().x / 14
+                                                  , size_10th         * 6.0f + getCursorPosFromCenter().y / 14
+                                                  , WHITE);
 
-        DrawTexture(textures["game_curtains"], -size_10th / 2 + getCursorPosFromCenter().x / 12
-                                             , -size_10th / 2 + getCursorPosFromCenter().y / 12, WHITE);
+            DrawTexture(textures["game_curtains"], -size_10th / 2 + getCursorPosFromCenter().x / 12
+                                                 , -size_10th / 2 + getCursorPosFromCenter().y / 12, WHITE);
 
-        const Vector2 bar_paralax = { getCursorPosFromCenter().x / 50, getCursorPosFromCenter().y / 50 };
-        // Bar
-        DrawRectangle( size_10th * 8.5 + bar_paralax.x
-                     , size_10th * 1.55 + bar_paralax.y
-                     , size_10th * 0.85, size_10th * 6.5, DARKGRAY);
-        // Curse
-        drawRectangleUp( size_10th * 8.5 + bar_paralax.x
-                       , size_10th * 8.05 + bar_paralax.y
-                       , size_10th * 0.85, size_10th * 6.5 / 20 * curse_value, bar_color);
-        DrawRectangle( size_10th * 8 + bar_paralax.x
-                     , size_10th * 7.9 + bar_paralax.y
-                     , size_10th * 1.85, size_10th * 1.8, bar_color);
-        DrawTexture(textures["game_bar_face"], size_10th * 8 + bar_paralax.x
-                                             , size_10th * 8 + bar_paralax.y, WHITE);
-        DrawTexture(textures["game_bar"], size_10th * 8   - 20 + bar_paralax.x
-                                        , size_10th * 1.5 - 25 + bar_paralax.y, WHITE);
+            const Vector2 bar_paralax = { getCursorPosFromCenter().x / 50, getCursorPosFromCenter().y / 50 };
+            // Bar
+            DrawRectangle( size_10th * 8.5 + bar_paralax.x
+                         , size_10th * 1.55 + bar_paralax.y
+                         , size_10th * 0.85, size_10th * 6.5, DARKGRAY);
+            // Curse
+            drawRectangleUp( size_10th * 8.5 + bar_paralax.x
+                           , size_10th * 8.05 + bar_paralax.y
+                           , size_10th * 0.85, size_10th * 6.5 / SECONDS_TO_CURSE * curse_value, bar_color);
+            DrawRectangle( size_10th * 8 + bar_paralax.x
+                         , size_10th * 7.9 + bar_paralax.y
+                         , size_10th * 1.85, size_10th * 1.8, bar_color);
+            drawFace(bar_paralax.x, bar_paralax.y);
+            DrawTexture(textures["game_bar"], size_10th * 8   - 20 + bar_paralax.x
+                                            , size_10th * 1.5 - 25 + bar_paralax.y, WHITE);
 
-        // Curse drain speed
-        DrawTextEx(font, TextFormat("%10.2fX", curse_drain_speed)
-                       , { static_cast<float>( size_10th * 9
-                                             - MeasureTextEx(font, TextFormat("%10.2fX", curse_drain_speed), 60, 1).x * 0.84)
-                                             + bar_paralax.x
-                       , size_10th / 3 * 2 + bar_paralax.y }
-                       , 60, 1
-                       , curse_drain_speed_color);
+            // Curse drain speed
+            DrawTextEx(font, TextFormat("%10.2fX", curse_drain_speed)
+                           , { static_cast<float>( size_10th * 9
+                                                 - MeasureTextEx(font, TextFormat("%10.2fX", curse_drain_speed), 60, 1).x * 0.84)
+                                                 + bar_paralax.x
+                           , size_10th / 3 * 2 + bar_paralax.y }
+                           , 60, 1
+                           , curse_drain_speed_color);
 
-        // Time
-        DrawTextEx(font, formatTime(GetTime() - game_start_timestamp)
-                       , { 90, 12 }
-                       , 60, 1
-                       , { 255, 255, 255, 50 });
-
+        EndMode2D();
     EndTextureMode();
 
     // Pause
@@ -348,6 +381,13 @@ void Game::drawGame()
         // DrawRectangle(18, 11, 40, 40, WHITE); // Draw pause hitbox
         DrawRectangle(20,           11, 14, 38, pause_color);
         DrawRectangle(20 + 38 - 14, 11, 14, 38, pause_color);
+
+        // Time
+        DrawTextEx(font, formatTime(GetTime() - game_start_timestamp)
+                       , { 90, 12 }
+                       , 60, 1
+                       , { 255, 255, 255, 50 });
+
 
         // Cursor
         drawCustomCursor(IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? animations["game_cursor_grab"] : animations["game_cursor_free"]);
