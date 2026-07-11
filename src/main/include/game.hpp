@@ -14,6 +14,17 @@ constexpr static float SECONDS_TO_CURSE = 20.0f;
 constexpr static int FPS = 60;
 
 
+static Vector2 getCursorPosFromCenter()
+{
+    return { static_cast<float>(360 - GetMouseX()), static_cast<float>(360 - GetMouseY()) };
+}
+
+
+enum ButtonStatus : unsigned short
+{
+    HOVERED
+   ,NOT_HOVERED
+};
 
 enum GuyState : unsigned short
 {
@@ -42,10 +53,13 @@ class Game
 {
     std::map<const char*, std::vector<Texture2D>> animations;
     std::map<const char*, Texture2D> textures;
+    std::map<const char*, Sound> sounds;
+    std::vector<Texture2D> noise;
     std::vector<Guy> guys;
     Camera2D camera;
     Font font;
     RenderTexture2D target = { 0 };
+    Texture2D vignette;
     float game_start_timestamp;
     float game_pause_timestamp;
     float curse_value; ///< Thing that drains in the game bar
@@ -75,6 +89,8 @@ public:
     /// their defaults
     ///------------------------------------------------------------------------
     void resetGame();
+
+    bool customButton(Texture2D& texture, int pos_x, int pos_y, ButtonStatus *past_status);
 
     ///------------------------------------------------------------------------
     /// Shakes screen.
