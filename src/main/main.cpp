@@ -91,6 +91,10 @@ void updateDrawFrame(void)
         game->drawPause();
         break;
 
+    case PLAYGROUND:
+        game->drawPlayground();
+        break;
+
     case MAIN_MENU:
     default:
         game->drawMainMenu();

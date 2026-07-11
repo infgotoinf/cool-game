@@ -61,6 +61,14 @@ struct Guy
     }
 };
 
+struct DragableObject
+{
+    Vector2 pos;
+    Texture2D texture;
+    unsigned hitbox_radius;
+    bool hitbox_visible;
+
+};
 
 class Game
 {
@@ -70,6 +78,8 @@ class Game
     std::map<const char*, Music> music;
     std::vector<Texture2D> noise;
     std::vector<Guy> guys;
+    std::vector<DragableObject> dragable_objects;
+    DragableObject* dragged_object;
     Camera2D camera;
     Font font;
     RenderTexture2D target = { 0 };
@@ -81,6 +91,7 @@ class Game
 
     bool is_gameover;
     bool is_tutorial_over;
+    bool is_dragging;
 
     constexpr static int screen_width = 720;
     constexpr static int screen_height = 720;
@@ -128,6 +139,13 @@ public:
 
     void drawFace(int shift_x, int shift_y);
 
+    // Dragable Objects
+    void dragObjects();
+
+    void drawDragableObjects();
+
+    void createDragableObject(Texture2D texture, Vector2 position, unsigned radius, bool hitbox_visible = false);
+
     // Screens
     void drawMainMenu();
 
@@ -136,6 +154,8 @@ public:
     void drawPause();
 
     void drawGameOver();
+
+    void drawPlayground();
 };
 
 #endif // GAME_HPP

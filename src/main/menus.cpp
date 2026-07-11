@@ -35,7 +35,7 @@ bool Game::customButton(Texture2D& texture, int pos_x, int pos_y, ButtonStatus* 
     }
     return false;
 }
-
+bool flag = false; // FOR DEBUG PURPOSES
 
 void Game::drawMainMenu()
 {
@@ -48,12 +48,20 @@ void Game::drawMainMenu()
         UpdateMusicStream(music["inadequate"]);
     }
 
+
+    if (!flag) { createDragableObject(textures["game_hex_table"], { (float)GetRandomValue(100, 300), (float)GetRandomValue(100, 300) }, 40, true); flag = true; }// FOR DEBUG PURPOSES
+    dragObjects();// FOR DEBUG PURPOSES
+
     BeginDrawing();
 
         DrawTexture(textures["menu_back"],   -36, -36, WHITE);
         DrawTexture(textures["menu_front"],  -36 + getCursorPosFromCenter().x / 50, -36 + getCursorPosFromCenter().y / 50, WHITE);
         DrawTexture(textures["menu_text"],   -36 + getCursorPosFromCenter().x / 30, -36 + getCursorPosFromCenter().y / 30, WHITE);
         DrawTexture(textures["menu_papers"], -36 + getCursorPosFromCenter().x / 10, -36 + getCursorPosFromCenter().y / 10, WHITE);
+
+
+        drawDragableObjects();// FOR DEBUG PURPOSES
+
 
         static ButtonStatus menu_begin_status = NOT_HOVERED;
         static ButtonStatus menu_end_status = NOT_HOVERED;
@@ -64,11 +72,6 @@ void Game::drawMainMenu()
             Game::resetGame();
             current_window = WindowID::GAME;
         }
-        // else if (customButton(textures["buttons_end"], screen_width * 0.5 + getCursorPosFromCenter().x / 20
-        //                                           , screen_height * 0.5 + 100 + getCursorPosFromCenter().y / 20, &menu_end_status))
-        // {
-        //     window_should_close = true;
-        // }
 
     EndDrawing();
 }
@@ -146,6 +149,19 @@ void Game::drawGameOver()
     EndDrawing();
 }
 
+void Game::drawPlayground()
+{
+    dragObjects();
+
+    BeginDrawing();
+
+        ClearBackground(DARKGRAY);
+
+        createDragableObject(textures["game_hex_table"], { 100, 100 }, 40);
+        drawDragableObjects();
+
+    EndDrawing();
+}
 
 Rectangle centerRect(int x, int y, float width, float height)
 {
