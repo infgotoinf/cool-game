@@ -1,6 +1,8 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
+
+#include <cmath>
 #include <vector>
 
 
@@ -55,6 +57,7 @@ Game::Game()
     textures["game_pause_icon"]   = LoadTexture("resources/game/pause_icon.png");
 
     // Objects
+    textures["game_object_book_blindness"] = LoadTexture("resources/game/objects/books/blindness.png");
     textures["game_object_knife"]  = LoadTexture("resources/game/objects/knife.png");
     textures["game_object_spider"] = LoadTexture("resources/game/objects/dead/spider.png");
     loadAnimationFrames("resources/game/objects/spider", &animations["game_object_spider"], NOT_GUY_ANIMATION);
@@ -89,9 +92,9 @@ Game::Game()
     float trinagle_width = 2 * trinagle_size;
     float trinagle_height = sqrt(3) * trinagle_size;
 
-    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 
-                ,  trinagle_x - trinagle_width / 2, trinagle_y 
-                ,  trinagle_x, trinagle_y 
+    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2
+                ,  trinagle_x - trinagle_width / 2, trinagle_y
+                ,  trinagle_x, trinagle_y
                 , YELLOW}; // Top-left
 
     hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }

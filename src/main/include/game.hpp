@@ -39,6 +39,7 @@ enum ObjectType : unsigned short
    ,KNIFE
    ,DEAD
    ,ALIVE
+   ,BOOK
 };
 
 

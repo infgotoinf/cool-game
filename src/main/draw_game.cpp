@@ -3,7 +3,6 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#include <cmath>
 #include <vector>
 
 #include "window_codes.hpp"
@@ -77,8 +76,8 @@ Rectangle Game::swingKnife()
     Rectangle rec = { (float) GetMouseX() - swing_size
                     , (float) GetMouseY() - swing_size / 2
                     , swing_size * 2, swing_size / 2 };
-    DrawRectangleRec(rec, RED);
-    DrawRectangleLinesEx(rec, 1, WHITE);
+    // DrawRectangleRec(rec, RED);
+    // DrawRectangleLinesEx(rec, 1, WHITE);
     return rec;
 }
 
@@ -89,8 +88,8 @@ Rectangle getCursorHitbox()
     Rectangle rec = { (float) GetMouseX() - cursor_size / 2
                     , (float) GetMouseY() - cursor_size / 2
                     , cursor_size, cursor_size };
-    DrawRectangleRec(rec, GOLD);
-    DrawRectangleLinesEx(rec, 1, WHITE);
+    // DrawRectangleRec(rec, GOLD);
+    // DrawRectangleLinesEx(rec, 1, WHITE);
     return rec;
 }
 
@@ -130,7 +129,7 @@ bool Game::dragObjects()
             if (CheckCollisionPointTriangle(dragged_object->pos,
                 hex_table_trinagles[i].point1,
                 hex_table_trinagles[i].point2,
-                hex_table_trinagles[i].point3)) 
+                hex_table_trinagles[i].point3))
             {
                 hex_table_trinagles[i].color = WHITE;
                 break;
@@ -194,7 +193,8 @@ void Game::spawnSpider()
 
 void Game::spawnBird()
 {
-    Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 72 * 7)), -36 };
+    bool moves_from_left = GetRandomValue(0, 1);
+    Vector2 rand_pos = { static_cast<float>(GetRandomValue(72, 144)), static_cast<float>(GetRandomValue(72, 144))};
     for (DragableObject &obj : dragable_objects)
         if (obj.name == BIRD && obj.type == DEAD)
         {
@@ -551,8 +551,7 @@ void Game::drawGame()
             DrawTexture(textures["game_almost_front"], size_10th + getCursorPosFromCenter().x / 20
                                                      , getCursorPosFromCenter().y / 20 + 10, WHITE);
 
-            drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, ALMOST_FRONT);
-            // drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, FRONT);
+            drawDragableObjects(getCursorPosFromCenter().x / 20, getCursorPosFromCenter().y / 20, ALMOST_FRONT);
 
             DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
                                               , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);
