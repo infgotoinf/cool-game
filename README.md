@@ -128,9 +128,7 @@ Keyboard:
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
  - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
 
 ### License
 
