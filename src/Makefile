@@ -32,8 +32,8 @@ PLATFORM              ?= PLATFORM_WEB
 PROJECT_NAME          ?= game
 PROJECT_VERSION       ?= 0.01
 PROJECT_BUILD_PATH    ?= build
-PROJECT_SOURCE_FILES  ?= $(basename $(notdir $(shell find $(PROJECT_SOURCE_DIR) -name '*.cpp')))
 PROJECT_SOURCE_DIR    ?= main
+PROJECT_SOURCE_FILES  ?= $(basename $(notdir $(shell find $(PROJECT_SOURCE_DIR) -name '*.cpp')))
 
 VENDORED_PATH         ?= ../vendored
 

@@ -81,3 +81,7 @@ android.*
 
 .devbox
 .venv
+*~
+.log
+*.time-report.txt
+*autosave.kra
