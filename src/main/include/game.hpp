@@ -122,7 +122,7 @@ class Game
     std::vector<Texture2D> noise;
     std::vector<Guy> guys;
     std::vector<DragableObject> dragable_objects;
-    Triangle hex[6];
+    Triangle hex_table_trinagles[6];
     DragableObject* dragged_object;
     Camera2D camera;
     Font font;
@@ -174,6 +174,8 @@ public:
     void drainCurse();
 
     void riseCurseDrainSpeed(int ammount);
+
+    void drawHexTable(float x, float y, Color color);
 
     // Guy/guys related
     Guy createRandomGuy();

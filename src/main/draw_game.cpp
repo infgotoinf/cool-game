@@ -1,6 +1,7 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
+#include "raymath.h"
 
 #include <cmath>
 #include <vector>
@@ -23,7 +24,7 @@ constexpr static float CURSE_EXTREME_VALUE = 5.0f;
 ///
 /// @note You can reed this to understand https://www.redblobgames.com/grids/hexagons/
 ///----------------------------------------------------------------------------
-void drawHexTable(float x, float y, float size, Color color);
+//void drawHexTable(float x, float y, float size, Color color);
 
 
 ///----------------------------------------------------------------------------
@@ -124,6 +125,19 @@ bool Game::dragObjects()
     }
     else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) and is_dragging)
     {
+        for (int i = 0; i < 6; ++i)
+        {
+            if (CheckCollisionPointTriangle(dragged_object->pos,
+                hex_table_trinagles[i].point1,
+                hex_table_trinagles[i].point2,
+                hex_table_trinagles[i].point3)) 
+            {
+                hex_table_trinagles[i].color = WHITE;
+                break;
+            }
+        }
+
+
         is_dragging = false;
         dragged_object = nullptr;
     }
@@ -545,9 +559,9 @@ void Game::drawGame()
             // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
 
             // Hex table
-            drawHexTable( size_10th * 2.5 + 2 + getCursorPosFromCenter().x / 14
-                        , size_10th * 8   - 5 + getCursorPosFromCenter().y / 14
-                        , size_10th * 2 + 6, BLACK);
+            drawHexTable(  getCursorPosFromCenter().x / 14
+                        ,  getCursorPosFromCenter().y / 14
+                        ,  BLACK);
             DrawTexture(textures["game_hex_table"], size_10th * 0.5f - 10.0f + getCursorPosFromCenter().x / 14
                                                   , size_10th         * 6.0f + getCursorPosFromCenter().y / 14
                                                   , WHITE);
@@ -663,41 +677,43 @@ void Game::drawGame()
 }
 
 
-void drawHexTable(float x, float y, float size, Color color)
+void Game::drawHexTable(float shift_x, float shift_y, Color color)
 {
-    float width = 2 * size;
-    float height = sqrt(3) * size;
+    //float width = 2 * size;
+    //float height = sqrt(3) * size;
+
+
 
     // Top-left
-    DrawTriangle( { x - width / 4, y - height / 2 }
-                , { x - width / 2, y }
-                , { x, y }
-                , YELLOW );
+    DrawTriangle( Vector2Add( hex_table_trinagles[0].point1, {shift_x, shift_y})
+                , Vector2Add(hex_table_trinagles[0].point2, { shift_x, shift_y })
+                , Vector2Add(hex_table_trinagles[0].point3, { shift_x, shift_y })
+                , hex_table_trinagles[0].color );
     // Top
-    DrawTriangle( { x - width / 4, y - height / 2 }
-                , { x, y }
-                , { x + width / 4, y - height / 2 }
-                , GREEN );
+    DrawTriangle(Vector2Add(hex_table_trinagles[1].point1, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[1].point2, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[1].point3, { shift_x, shift_y })
+        , hex_table_trinagles[1].color);
     // Top-right
-    DrawTriangle( { x + width / 4, y - height / 2 }
-                , { x, y }
-                , { x + width / 2, y }
-                , RED );
+    DrawTriangle(Vector2Add(hex_table_trinagles[2].point1, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[2].point2, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[2].point3, { shift_x, shift_y })
+        , hex_table_trinagles[2].color);
     // Down-right
-    DrawTriangle( { x, y }
-                , { x + width / 4, y + height / 2 }
-                , { x + width / 2, y }
-                , PINK );
+    DrawTriangle(Vector2Add(hex_table_trinagles[3].point1, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[3].point2, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[3].point3, { shift_x, shift_y })
+        , hex_table_trinagles[3].color);
     // Down
-    DrawTriangle( {x, y}
-                , { x - width / 4, y + height / 2 }
-                , { x + width / 4, y + height / 2 }
-                , ORANGE );
+    DrawTriangle(Vector2Add(hex_table_trinagles[4].point1, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[4].point2, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[4].point3, { shift_x, shift_y })
+        , hex_table_trinagles[4].color);
     // Down-left
-    DrawTriangle( { x, y }
-                , { x - width / 2, y }
-                , { x - width / 4, y + height / 2 }
-                , SKYBLUE );
+    DrawTriangle(Vector2Add(hex_table_trinagles[5].point1, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[5].point2, { shift_x, shift_y })
+        , Vector2Add(hex_table_trinagles[5].point3, { shift_x, shift_y })
+        , hex_table_trinagles[5].color);
 
     // DrawCircle(x, y, 5, RED);
 }

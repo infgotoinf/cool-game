@@ -81,6 +81,44 @@ Game::Game()
     textures["menu_papers"] = LoadTexture("resources/menu/papers.png");
     textures["menu_text"]   = LoadTexture("resources/menu/text.png");
 
+    // Triangles
+    float trinagle_x = 72 * 2.5 + 2;
+    float trinagle_y = 72 * 8 - 5;
+    float trinagle_size = 72 * 2 + 6;
+
+    float trinagle_width = 2 * trinagle_size;
+    float trinagle_height = sqrt(3) * trinagle_size;
+
+    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 
+                ,  trinagle_x - trinagle_width / 2, trinagle_y 
+                ,  trinagle_x, trinagle_y 
+                , YELLOW}; // Top-left
+
+    hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , GREEN }; // Top
+
+    hex_table_trinagles[2] = { { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 2, trinagle_y }
+                , RED }; // Top-right
+
+    hex_table_trinagles[3] = { { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , { trinagle_x + trinagle_width / 2, trinagle_y }
+                , PINK }; // Down-right
+
+    hex_table_trinagles[4] = { {trinagle_x, trinagle_y}
+                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , ORANGE }; // Down
+
+    hex_table_trinagles[5] = { { trinagle_x, trinagle_y }
+                , { trinagle_x - trinagle_width / 2, trinagle_y }
+                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , SKYBLUE }; // Down-left
+
     // Load animations
     loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"], GUY_ANIMATION);
     loadAnimationFrames("resources/game/guy/idle", &animations["game_guy_idle"], GUY_ANIMATION);
