@@ -190,7 +190,7 @@ void Game::resetGame()
     sortGuysByPosY();
 
     dragable_objects.clear();
-    createDragableObject(std::vector<Texture2D>{}, textures["game_object_knife"], { 400, 500 }, 30, KNIFE, NO, true);
+    createDragableObject(std::vector<Texture2D>{}, textures["game_object_knife"], { 400, 500 }, 30, KNIFE, NO);
 
     game_start_timestamp = GetTime();
 }

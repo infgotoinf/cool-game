@@ -103,7 +103,7 @@ bool Game::dragObjects()
         {
             if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, cursor_hibox))
             {
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && obj.type != ALIVE)
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && obj.type != ALIVE && not is_holding_a_knife)
                 {
                     is_dragging = true;
                     dragged_object = &obj;
@@ -135,24 +135,21 @@ void Game::drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z)
 {
     for (DragableObject& obj : dragable_objects)
     {
-        // if ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE && pos_z == FRONT) return;
-        // if (not ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE) && pos_z == ALMOST_FRONT) return;
+        if ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE && pos_z == FRONT) continue;
+        if (not ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE) && pos_z == ALMOST_FRONT) continue;
 
         if (obj.animation.empty())
             DrawTexture(obj.texture, obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
         else
         {
-            static int frame_counter = 0;
-            static int frame = 0;
-
-            ++frame_counter;
-            if (frame_counter >= FPS / animation_fps)
+            ++obj.frame_counter;
+            if (obj.frame_counter >= FPS / animation_fps)
             {
-                frame_counter = 0;
-                ++frame;
-                if (frame >= 3) frame = 0;
+                obj.frame_counter = 0;
+                ++obj.frame;
+                if (obj.frame >= 3) obj.frame = 0;
             }
-            DrawTexture( obj.animation[frame]
+            DrawTexture( obj.animation[obj.frame]
                        , obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
         }
 
@@ -166,23 +163,23 @@ void Game::drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z)
 
 void Game::spawnSpider()
 {
-    Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 144 * 4)), 72 };
+    Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 72 * 7)), -36 };
     for (DragableObject &obj : dragable_objects)
     {
         if (obj.name == SPIDER && obj.type == DEAD)
         {
             obj.pos = rand_pos;
             obj.type = ALIVE;
+            obj.state = 1;
         }
     }
     createDragableObject( animations["game_object_spider"], textures["game_object_spider"]
-                        , rand_pos, 40, ALIVE, SPIDER);
+                        , rand_pos, 40, ALIVE, SPIDER, 1);
 }
 
 void Game::updateSpider(Rectangle attack)
 {
     static float pos_shift = 1.0f * curse_drain_speed;
-    static bool move_switch = false;
     static int edge = 72 * 3;
 
     for (DragableObject &obj : dragable_objects)
@@ -193,31 +190,34 @@ void Game::updateSpider(Rectangle attack)
             {
                 obj.name = NO;
                 obj.type = DEAD;
+                obj.state = 0;
                 obj.animation = std::vector<Texture2D>();
             }
-            else if (obj.pos.y <= edge && !move_switch)
+            else if (obj.pos.y <= edge && obj.state == 1)
             {
                 obj.pos.y += pos_shift;
             }
-            else if (obj.pos.y >= edge && !move_switch)
+            else if (obj.pos.y >= edge && obj.state == 1)
             {
                 obj.pos.y -= pos_shift;
-                move_switch = true;
+                obj.state = 2;
             }
-            else if (obj.pos.y >= 72 && move_switch)
+            else if (obj.pos.y >= -36 && obj.state == 2)
             {
                 obj.pos.y -= pos_shift;
             }
             else
             {
+                obj.type = DEAD;
                 obj.pos = { 1000, 1000 };
+                obj.state = 0;
             }
         }
     }
 }
 
 
-void Game::createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, bool hitbox_visible)
+void Game::createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, int state, bool hitbox_visible)
 {
     DragableObject obj = { animation, texture, position, radius, type, name, hitbox_visible};
 
@@ -485,6 +485,7 @@ void Game::drawGame()
                                                      , getCursorPosFromCenter().y / 20 + 10, WHITE);
 
             drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, ALMOST_FRONT);
+            // drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, FRONT);
 
             DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
                                               , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);

@@ -74,15 +74,6 @@ enum LayerZ : unsigned short
 };
 
 
-struct Triangle {
-    Vector2 point1;
-    Vector2 point2;
-    Vector2 point3;
-    Color color;
-
-};
-
-
 struct Guy
 {
     Vector2 pos;
@@ -106,8 +97,21 @@ struct DragableObject
     unsigned hitbox_radius;
     ObjectType type;
     EntityName name;
+    int state;
     bool hitbox_visible;
+    int frame_counter = 0;
+    int frame = 0;
 };
+
+
+struct Triangle {
+    Vector2 point1;
+    Vector2 point2;
+    Vector2 point3;
+    Color color;
+    DragableObject *odject;
+};
+
 
 class Game
 {
@@ -118,6 +122,7 @@ class Game
     std::vector<Texture2D> noise;
     std::vector<Guy> guys;
     std::vector<DragableObject> dragable_objects;
+    Triangle hex[6];
     DragableObject* dragged_object;
     Camera2D camera;
     Font font;
@@ -186,7 +191,7 @@ public:
 
     void drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z);
 
-    void createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, bool hitbox_visible = false);
+    void createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, int state = 0, bool hitbox_visible = false);
 
     // Screens
     void drawMainMenu();
