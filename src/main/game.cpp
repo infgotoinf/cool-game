@@ -64,6 +64,11 @@ Game::Game()
     textures["game_object_bird"] = LoadTexture("resources/game/objects/dead/bird.png");
     loadAnimationFrames("resources/game/objects/bird/fly", &animations["game_object_bird_fly"], NOT_GUY_ANIMATION);
     loadAnimationFrames("resources/game/objects/bird/idle", &animations["game_object_bird_idle"], NOT_GUY_ANIMATION);
+
+    // Image image = LoadImageFromTexture(textures["game_object_bird"]);
+    // ImageFlipHorizontal(&image);
+    // animations["game_object_bird_back"].push_back(LoadTextureFromImage(image));
+    // UnloadImage(image);
     for (Texture2D frame : animations["game_object_bird_fly"])
     {
         Image image = LoadImageFromTexture(frame);
@@ -83,44 +88,6 @@ Game::Game()
     textures["menu_front"]  = LoadTexture("resources/menu/front.png");
     textures["menu_papers"] = LoadTexture("resources/menu/papers.png");
     textures["menu_text"]   = LoadTexture("resources/menu/text.png");
-
-    // Triangles
-    float trinagle_x = 72 * 2.5 + 2;
-    float trinagle_y = 72 * 8 - 5;
-    float trinagle_size = 72 * 2 + 6;
-
-    float trinagle_width = 2 * trinagle_size;
-    float trinagle_height = sqrt(3) * trinagle_size;
-
-    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2
-                ,  trinagle_x - trinagle_width / 2, trinagle_y
-                ,  trinagle_x, trinagle_y
-                , YELLOW}; // Top-left
-
-    hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }
-                , { trinagle_x, trinagle_y }
-                , { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
-                , GREEN }; // Top
-
-    hex_table_trinagles[2] = { { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
-                , { trinagle_x, trinagle_y }
-                , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , RED }; // Top-right
-
-    hex_table_trinagles[3] = { { trinagle_x, trinagle_y }
-                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , PINK }; // Down-right
-
-    hex_table_trinagles[4] = { {trinagle_x, trinagle_y}
-                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , ORANGE }; // Down
-
-    hex_table_trinagles[5] = { { trinagle_x, trinagle_y }
-                , { trinagle_x - trinagle_width / 2, trinagle_y }
-                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , SKYBLUE }; // Down-left
 
     // Load animations
     loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"], GUY_ANIMATION);
@@ -181,6 +148,44 @@ Game::Game()
     // Target setup
     target = LoadRenderTexture(screen_width, screen_height);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+
+    // Triangles
+    float trinagle_x = 72 * 2.5 + 2;
+    float trinagle_y = 72 * 8 - 5;
+    float trinagle_size = 72 * 2 + 6;
+
+    float trinagle_width = 2 * trinagle_size;
+    float trinagle_height = sqrt(3) * trinagle_size;
+
+    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2
+                ,  trinagle_x - trinagle_width / 2, trinagle_y
+                ,  trinagle_x, trinagle_y
+                , YELLOW}; // Top-left
+
+    hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , GREEN }; // Top
+
+    hex_table_trinagles[2] = { { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
+                , { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 2, trinagle_y }
+                , RED }; // Top-right
+
+    hex_table_trinagles[3] = { { trinagle_x, trinagle_y }
+                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , { trinagle_x + trinagle_width / 2, trinagle_y }
+                , PINK }; // Down-right
+
+    hex_table_trinagles[4] = { {trinagle_x, trinagle_y}
+                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , ORANGE }; // Down
+
+    hex_table_trinagles[5] = { { trinagle_x, trinagle_y }
+                , { trinagle_x - trinagle_width / 2, trinagle_y }
+                , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
+                , SKYBLUE }; // Down-left
 
     SetTargetFPS(60);
     resetGame();

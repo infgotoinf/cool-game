@@ -193,16 +193,18 @@ void Game::spawnSpider()
 
 void Game::spawnBird()
 {
-    bool moves_from_left = GetRandomValue(0, 1);
-    Vector2 rand_pos = { static_cast<float>(GetRandomValue(72, 144)), static_cast<float>(GetRandomValue(72, 144))};
+    bool moves_right = GetRandomValue(0, 1);
+    Vector2 rand_pos = { static_cast<float>(moves_right ? 72 : 72 * 9), static_cast<float>(GetRandomValue(72, 144))};
+    std::vector<Texture2D> animation = animations[moves_right ? "game_object_bird_fly_back" : "game_object_bird_fly"];
     for (DragableObject &obj : dragable_objects)
         if (obj.name == BIRD && obj.type == DEAD)
         {
             obj.pos = rand_pos;
             obj.type = ALIVE;
-            obj.state = 1;
+            obj.state = moves_right ? 1 : -1;
+            obj.animation = animation;
         }
-    createDragableObject( animations["game_object_bird_fly"], textures["game_object_bird"]
+    createDragableObject( animation, textures["game_object_bird"]
                         , rand_pos, 40, ALIVE, BIRD, 1);
 }
 
@@ -244,8 +246,9 @@ void Game::updateEntities(Rectangle attack)
         }
         else if (obj.name == BIRD && obj.type == ALIVE)
         {
-            static float pos_shift = 1.0f * curse_drain_speed;
-            static int edge = 72 * 3;
+            static float pos_shift = 2.0f * curse_drain_speed;
+            static int edge = 72 * 4 + 10;
+            static float edge2;
             if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
             {
                 obj.name = NO;
@@ -256,14 +259,51 @@ void Game::updateEntities(Rectangle attack)
             else if (obj.pos.y <= edge && obj.state == 1)
             {
                 obj.pos.y += pos_shift;
+                obj.pos.x += pos_shift;
+            }
+            else if (obj.pos.y <= edge && obj.state == -1)
+            {
+                obj.pos.y += pos_shift;
+                obj.pos.x -= pos_shift;
             }
             else if (obj.pos.y >= edge && obj.state == 1)
             {
-                obj.pos.y -= pos_shift;
                 obj.state = 2;
+                edge2 = obj.pos.x + 1;
+                obj.animation = animations["game_object_bird_idle_back"];
             }
-            else if (obj.pos.y >= -36 && obj.state == 2)
+            else if (obj.pos.y >= edge && obj.state == -1)
             {
+                obj.state = -2;
+                edge2 = obj.pos.x - 1;
+                obj.animation = animations["game_object_bird_idle"];
+            }
+            else if (obj.pos.x <= edge2 && obj.state == 2)
+            {
+                obj.pos.x += pos_shift / 10;
+            }
+            else if (obj.pos.x >= edge2 && obj.state == -2)
+            {
+                obj.pos.x -= pos_shift / 10;
+            }
+            else if (obj.pos.x >= edge2 && obj.state == 2)
+            {
+                obj.state = 3;
+                obj.animation = animations["game_object_bird_fly_back"];
+            }
+            else if (obj.pos.x <= edge2 && obj.state == -2)
+            {
+                obj.state = -3;
+                obj.animation = animations["game_object_bird_fly"];
+            }
+            else if (obj.pos.x <= 720 - 72 && obj.state == 3)
+            {
+                obj.pos.x += pos_shift;
+                obj.pos.y -= pos_shift;
+            }
+            else if (obj.pos.x >= 72 && obj.state == -3)
+            {
+                obj.pos.x -= pos_shift;
                 obj.pos.y -= pos_shift;
             }
             else
