@@ -157,13 +157,12 @@ bool Game::dragObjects()
                 hex_table_trinagles[i].point2,
                 hex_table_trinagles[i].point3)
                 &&
-                !(dragged_object->type == KNIFE || dragged_object->type == BOOK)
+                !(dragged_object->type == KNIFE)
                 )
             {
 
                 hex_table_slots[i] = dragged_object;
                 hex_table_trinagles[i].is_active = true;
-                PlaySound(sounds["drop"]);
                 break;
 
             }
@@ -191,6 +190,7 @@ bool Game::dragObjects()
             createDragableObject({}, textures["game_object_book_blindness"], hex_table_trinagles[0].point3, 40, BOOK, NO);
         }
 
+        PlaySound(sounds["drop"]);
         is_dragging = false;
         dragged_object = nullptr;
     }
@@ -583,6 +583,7 @@ void Game::shakeScreen(int shake_ammount)
 }
 
 
+
 void Game::drainCurse() {
     curse_value -= curse_drain_speed / FPS;
 }
@@ -606,6 +607,7 @@ void Game::drawGame()
     // static int colLoc = GetShaderLocation(vignette, "color");
 
     drainCurse();
+    if (curse_value <= 0) curse_value = SECONDS_TO_CURSE;
 
     Color bar_color = { static_cast<unsigned char>(( BAR_COLOR100.r * curse_value
                         + BAR_COLOR0.r * (SECONDS_TO_CURSE - curse_value)) / SECONDS_TO_CURSE)
@@ -668,21 +670,18 @@ void Game::drawGame()
         cursor_can_grab = dragObjects();
     }
 
-    // spawnSpider();
-
-    // spawnBird();
-    static int time_to_spawn_a_spider = game_start_timestamp;
+    static int time_to_spawn_a_spider = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     if (time_to_spawn_a_spider < GetTime() - game_start_timestamp)
     {
         spawnSpider();
-        time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(3 / curse_drain_speed, 7 / curse_drain_speed);
+        time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     }
 
-    static int time_to_spawn_a_bird = game_start_timestamp;
+    static int time_to_spawn_a_bird = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     if (time_to_spawn_a_bird < GetTime() - game_start_timestamp)
     {
         spawnBird();
-        time_to_spawn_a_bird = GetTime() - game_start_timestamp + GetRandomValue(3 / curse_drain_speed, 7 / curse_drain_speed);
+        time_to_spawn_a_bird = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     }
 
     // Draw
@@ -707,7 +706,7 @@ void Game::drawGame()
             DrawTexture(textures["game_almost_front"], size_10th + getCursorPosFromCenter().x / 20
                                                      , getCursorPosFromCenter().y / 20 + 10, WHITE);
 
-            drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 20, ALMOST_FRONT);
+            drawDragableObjects(getCursorPosFromCenter().x / 20, getCursorPosFromCenter().y / 20, ALMOST_FRONT);
 
             DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
                                               , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);
@@ -752,24 +751,6 @@ void Game::drawGame()
                            , curse_drain_speed_color);
             DrawText(TextFormat("%d", time_to_spawn_a_spider), 10, 10, 24, PURPLE);
 
-            if (GetTime() - game_start_timestamp <= 10)
-            {
-                static Color tx = { 255, 255, 255, 100 };
-                DrawTextEx(font, ("LMB - drag/swing knife")
-                               , { 5, screen_width - 95 }
-                               , 40, 1
-                               , tx);
-
-                DrawTextEx(font, ("RBM - take knife/drop knife")
-                               , { 5, screen_width - 55 }
-                               , 40, 1
-                               , tx);
-
-                DrawTextEx(font, ("Throw Hexes at people to stay alive, make them by killing creaturies and putting them on the table")
-                               , { 5, screen_width - 15 }
-                               , 17, 1
-                               , tx);
-            }
         EndMode2D();
     EndTextureMode();
 
@@ -788,15 +769,6 @@ void Game::drawGame()
         }
     }
     else pause_color = { 255, 255, 255, 50 };
-
-    if (curse_value <= 0)
-    {
-        ShowCursor();
-        PauseMusicStream(music["inadequate"]);
-        PlaySound(sounds["button_click"]);
-        current_window = WindowID::GAMEOVER;
-        game_start_timestamp = GetTime() - game_start_timestamp;
-    }
 
     // Render to screen (main framebuffer)
     BeginDrawing();

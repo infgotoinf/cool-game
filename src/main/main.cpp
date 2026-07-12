@@ -87,6 +87,10 @@ void updateDrawFrame(void)
         game->drawGame();
         break;
 
+    case GAMEOVER:
+        game->drawGameOver();
+        break;
+
     case PAUSE:
         game->drawPause();
         break;

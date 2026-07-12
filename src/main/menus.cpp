@@ -128,8 +128,9 @@ void Game::drawGameOver()
 
         DrawRectangle(0, 0, screen_width, screen_height, { 40, 25, 0, 255 });
 
-        DrawTextEx(font, formatTime(GetTime() - game_start_timestamp)
-                       , { screen_width * 0.5, screen_height * 0.5 }
+        DrawTextEx(font, formatTime(game_start_timestamp)
+                       , { static_cast<float>(screen_width * 0.5 - MeasureTextEx(font, formatTime(game_start_timestamp), 60, 1).x * 0.5)
+                         , screen_height * 0.5 - 90 }
                        , 60, 1
                        , { 255, 255, 255, 50 });
 

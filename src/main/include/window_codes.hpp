@@ -6,6 +6,7 @@ enum WindowID : unsigned short
     MAIN_MENU
    ,GAME
    ,PAUSE
+   ,GAMEOVER
    // ,PLAYGROUND
 };
 

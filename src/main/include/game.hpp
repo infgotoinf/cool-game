@@ -10,7 +10,7 @@
 
 
 
-constexpr static float SECONDS_TO_CURSE = 15.0f;
+constexpr static float SECONDS_TO_CURSE = 30.0f;
 constexpr static int FPS = 60;
 
 
@@ -179,8 +179,6 @@ public:
     /// @param[in] shake_ammount How strong is the shake.
     ///------------------------------------------------------------------------
     void shakeScreen(int shake_ammount);
-
-    void regenCurse();
 
     void drainCurse();
 
