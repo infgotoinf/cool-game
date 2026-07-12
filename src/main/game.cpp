@@ -254,4 +254,19 @@ void Game::resetGame()
     createDragableObject(std::vector<Texture2D>{}, textures["game_object_knife"], { 400, 500 }, 30, KNIFE, NO);
 
     game_start_timestamp = GetTime();
+
+    for (int i = 0; i < 6; ++i)
+    {
+        hex_table_trinagles[i].is_active = false;
+    }
+}
+
+
+Color Triangle::GetColor()
+{
+    if (is_active)
+    {
+        return color;
+    }
+    return inactive_color;
 }

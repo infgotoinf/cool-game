@@ -106,11 +106,18 @@ struct DragableObject
 
 
 struct Triangle {
+    // Construcor values
     Vector2 point1;
     Vector2 point2;
     Vector2 point3;
     Color color;
-    DragableObject *odject;
+    Color inactive_color;
+
+    // Not constructor values
+    bool is_active = false;
+    DragableObject *object;
+
+    Color GetColor();
 };
 
 
@@ -124,6 +131,7 @@ class Game
     std::vector<Guy> guys;
     std::vector<DragableObject> dragable_objects;
     Triangle hex_table_trinagles[6];
+    DragableObject* hex_table_slots[6];
     DragableObject* dragged_object;
     Camera2D camera;
     Font font;
