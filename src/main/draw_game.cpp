@@ -157,7 +157,7 @@ bool Game::dragObjects()
                 hex_table_trinagles[i].point2,
                 hex_table_trinagles[i].point3)
                 &&
-                !(dragged_object->type == KNIFE)
+                !(dragged_object->type == KNIFE || dragged_object->type == BOOK)
                 )
             {
 
@@ -293,9 +293,7 @@ void Game::updateEntities(Rectangle attack)
             }
             else
             {
-                obj->type = DEAD;
-                obj->pos = { 1000, 1000 };
-                obj->state = 0;
+                deleteDragableObject(obj);
             }
         }
         else if (obj->name == BIRD && obj->type == ALIVE)
@@ -362,9 +360,7 @@ void Game::updateEntities(Rectangle attack)
             }
             else
             {
-                obj->type = DEAD;
-                obj->pos = { 1000, 1000 };
-                obj->state = 0;
+                deleteDragableObject(obj);
             }
         }
     }

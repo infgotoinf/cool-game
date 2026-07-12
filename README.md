@@ -112,20 +112,18 @@ _Copyright (c) 2014-2026 Ramon Santamaria ([@raysan5](https://github.com/raysan5
 
 ### Description
 
-$(Your Game Description)
+A Game about catching birds and hexing people! You are cursed to curse others to survive and must create hexes from whatever you find! 
 
 ### Features
 
- - $(Game Feature 01)
- - $(Game Feature 02)
- - $(Game Feature 03)
+ - Birds!
+ - Ticking curse timer that hurries you up!
+ - An epic art style, by an epic artist
 
 ### Controls
 
 Keyboard:
- - $(Game Control 01)
- - $(Game Control 02)
- - $(Game Control 03)
+ - All Mouse all the time
 
 ### Screenshots
 
@@ -133,9 +131,8 @@ _TODO: Show your game to the world, animated GIFs recommended!._
 
 ### Developers
 
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
+ - infgotoinf - main code, art, audio
+ - demdanem - additional code
 
 ### Links
 
