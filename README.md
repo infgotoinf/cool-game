@@ -56,65 +56,25 @@ devbox shell
   <!-- ``` -->
 
 
-> [!NOTE]
-> I left the next build sections just for the reference if something doesn't work. You probably don't need them.
-
-#### Windows: Visual Studio
-
-- After extracting the zip, the parent folder `raylib-game-template` should exist in the same directory as `raylib` itself.  So, your file structure should look like this:
-    - Some parent directory
-        - `raylib`
-            - the contents of https://github.com/raysan5/raylib
-        - `raylib-game-template`
-            - this `README.md` and all other raylib-game-template files
-- If using Visual Studio, open projects/VS2022/raylib-game-template.sln
-- Select on `raylib_game` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
-- Now you're all set up!  Click `Local Windows Debugger` with the green play arrow and the project will run.
-
-#### Linux
-
-When setting up this template on linux for the first time, install the dependencies from this page:
-([Working on GNU Linux](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux))
-
-You can use this templates in a few ways: using Visual Studio, using CMake, or make your own build setup. This repository comes with Visual Studio and CMake already set up.
-
-Chose one of the follow setup options that fit in you development environment.
-
-### CLI: Makefile
-
-```sh
-mkdir ~/raylib-gamejam && cd ~/raylib-gamejam
-git clone --depth 1 --branch 6.0 https://github.com/raysan5/raylib
-make -C raylib/src
-git clone https://github.com/$(User Name)/$(Repo Name).git
-cd $(Repo Name)
-make -C src
-src/raylib_game
-```
-
-This template has been created to be used with raylib (www.raylib.com) and it's licensed under an unmodified zlib/libpng license.
-
 _Copyright (c) 2014-2026 Ramon Santamaria ([@raysan5](https://github.com/raysan5))_
 -----------------------------------
 
-## $(Game Title)
-
-![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
+## HexAgony
 
 ### Description
 
-A Game about catching birds and hexing people! You are cursed to curse others to survive and must create hexes from whatever you find! 
+A Game about murdering creatures and hexing people! You are cursed to curse others to survive and must create hexes from whatever you find!
 
 ### Features
 
- - Birds!
+ - Birds! (and spiders!)
  - Ticking curse timer that hurries you up!
  - An epic art style, by an epic artist
 
 ### Controls
 
-Keyboard:
- - All Mouse all the time
+- LMB - drag object/swing knife
+- RMB - take knife/drop knife
 
 ### Screenshots
 
@@ -123,17 +83,15 @@ Keyboard:
 
 ### Developers
 
- - infgotoinf - main code, art, audio
- - demdanem - additional code
+ - -inf(infgotoinf) - programmer, artist, sound designer, musician
+ - DemDanEm - programmer
 
 ### Links
 
- - itch.io Release: $(itch.io Game Page)
+ - itch.io Release: https://infgotoinf.itch.io/hexagony
 
 ### License
 
 This project sources are licensed under an unmodified zlib/libpng license, which is an OSI-certified, BSD-like license that allows static linking with closed source software. Check [LICENSE](LICENSE) for further details.
 
-$(Additional Licenses)
-
-*Copyright (c) $(Year) $(User Name) ($(User Twitter/GitHub Name))*
+*Copyright (c) 2026 -inf(infgotoinf) & DemDanEm*

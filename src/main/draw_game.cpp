@@ -750,7 +750,7 @@ void Game::drawGame()
                            , size_10th / 3 * 2 + bar_paralax.y }
                            , 60, 1
                            , curse_drain_speed_color);
-            DrawText(TextFormat("%d", time_to_spawn_a_spider), 10, 10, 24, PURPLE);
+            // DrawText(TextFormat("%d", time_to_spawn_a_spider), 10, 10, 24, PURPLE);
 
             if (GetTime() - game_start_timestamp <= 10)
             {
