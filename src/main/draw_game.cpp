@@ -177,15 +177,61 @@ void Game::spawnSpider()
                         , rand_pos, 40, ALIVE, SPIDER, 1);
 }
 
-void Game::updateSpider(Rectangle attack)
-{
-    static float pos_shift = 1.0f * curse_drain_speed;
-    static int edge = 72 * 3;
 
+void Game::spawnBird()
+{
+    Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 72 * 7)), -36 };
+    for (DragableObject &obj : dragable_objects)
+        if (obj.name == BIRD && obj.type == DEAD)
+        {
+            obj.pos = rand_pos;
+            obj.type = ALIVE;
+            obj.state = 1;
+        }
+    createDragableObject( animations["game_object_bird_fly"], textures["game_object_bird"]
+                        , rand_pos, 40, ALIVE, BIRD, 1);
+}
+
+
+void Game::updateEntities(Rectangle attack)
+{
     for (DragableObject &obj : dragable_objects)
     {
         if (obj.name == SPIDER && obj.type == ALIVE)
         {
+            static float pos_shift = 1.0f * curse_drain_speed;
+            static int edge = 72 * 3;
+            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
+            {
+                obj.name = NO;
+                obj.type = DEAD;
+                obj.state = 0;
+                obj.animation = std::vector<Texture2D>();
+            }
+            else if (obj.pos.y <= edge && obj.state == 1)
+            {
+                obj.pos.y += pos_shift;
+            }
+            else if (obj.pos.y >= edge && obj.state == 1)
+            {
+                obj.pos.y -= pos_shift;
+                obj.state = 2;
+            }
+            else if (obj.pos.y >= -36 && obj.state == 2)
+            {
+                obj.pos.y -= pos_shift;
+            }
+            else
+            {
+                obj.type = DEAD;
+                obj.pos = { 1000, 1000 };
+                obj.state = 0;
+            }
+        }
+        else if (obj.name == BIRD && obj.type == ALIVE)
+        {
+            static float pos_shift = 1.0f * curse_drain_speed;
+            static int edge = 72 * 3;
             if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
             {
                 obj.name = NO;
@@ -462,6 +508,13 @@ void Game::drawGame()
         time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
     }
 
+    static int time_to_spawn_a_bird = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    if (time_to_spawn_a_bird < GetTime() - game_start_timestamp)
+    {
+        spawnBird();
+        time_to_spawn_a_bird = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    }
+
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
@@ -587,17 +640,17 @@ void Game::drawGame()
         {
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
-                updateSpider(swingKnife());
+                updateEntities(swingKnife());
             }
             else
             {
-                updateSpider();
+                updateEntities();
                 drawCustomCursor(animations["game_cursor_knife_hold"]);
             }
         }
         else
         {
-            updateSpider();
+            updateEntities();
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
                 drawCustomCursor(animations["game_cursor_grab"]);

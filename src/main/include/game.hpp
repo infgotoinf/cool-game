@@ -202,9 +202,12 @@ public:
 
     void drawGameOver();
 
+    // Entities
+    void updateEntities(Rectangle attack = { 0, 0, 0, 0 });
+
     void spawnSpider();
 
-    void updateSpider(Rectangle attack = { 0, 0, 0, 0 });
+    void spawnBird();
 
     // void drawPlayground();
 };

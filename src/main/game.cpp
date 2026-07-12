@@ -58,6 +58,23 @@ Game::Game()
     textures["game_object_knife"]  = LoadTexture("resources/game/objects/knife.png");
     textures["game_object_spider"] = LoadTexture("resources/game/objects/dead/spider.png");
     loadAnimationFrames("resources/game/objects/spider", &animations["game_object_spider"], NOT_GUY_ANIMATION);
+    textures["game_object_bird"] = LoadTexture("resources/game/objects/dead/bird.png");
+    loadAnimationFrames("resources/game/objects/bird/fly", &animations["game_object_bird_fly"], NOT_GUY_ANIMATION);
+    loadAnimationFrames("resources/game/objects/bird/idle", &animations["game_object_bird_idle"], NOT_GUY_ANIMATION);
+    for (Texture2D frame : animations["game_object_bird_fly"])
+    {
+        Image image = LoadImageFromTexture(frame);
+        ImageFlipHorizontal(&image);
+        animations["game_object_bird_fly_back"].push_back(LoadTextureFromImage(image));
+        UnloadImage(image);
+    }
+    for (Texture2D frame : animations["game_object_bird_idle"])
+    {
+        Image image = LoadImageFromTexture(frame);
+        ImageFlipHorizontal(&image);
+        animations["game_object_bird_idle_back"].push_back(LoadTextureFromImage(image));
+        UnloadImage(image);
+    }
 
     textures["menu_back"]   = LoadTexture("resources/menu/back.png");
     textures["menu_front"]  = LoadTexture("resources/menu/front.png");
@@ -95,8 +112,6 @@ Game::Game()
 
     // Load fonts
     font = LoadFontEx("resources/fonts/my-old-remington/myoldrem.ttf", 64, 0, 0);
-    // font = LoadFontEx("resources/fonts/x-typewriter/XTypewriter-Regular.ttf", 64, 0, 0);
-    // font = LoadFontEx("resources/fonts/x-typewriter/XTypewriter-Bold.ttf", 64, 0, 0);
 
     // Load sounds
     sounds["button_click"] = LoadSound("resources/audio/button/click.wav");
