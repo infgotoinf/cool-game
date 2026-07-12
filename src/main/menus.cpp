@@ -35,7 +35,7 @@ bool Game::customButton(Texture2D& texture, int pos_x, int pos_y, ButtonStatus* 
     }
     return false;
 }
-bool flag = false; // FOR DEBUG PURPOSES
+// bool flag = false; // FOR DEBUG PURPOSES
 
 void Game::drawMainMenu()
 {
@@ -49,8 +49,8 @@ void Game::drawMainMenu()
     }
 
 
-    if (!flag) { createDragableObject(textures["game_hex_table"], { (float)GetRandomValue(100, 300), (float)GetRandomValue(100, 300) }, 40, true); flag = true; }// FOR DEBUG PURPOSES
-    dragObjects();// FOR DEBUG PURPOSES
+    // if (!flag) { createDragableObject(textures["game_hex_table"], { (float)GetRandomValue(100, 300), (float)GetRandomValue(100, 300) }, 40, true); flag = true; }// FOR DEBUG PURPOSES
+    // dragObjects();// FOR DEBUG PURPOSES
 
     BeginDrawing();
 
@@ -60,7 +60,7 @@ void Game::drawMainMenu()
         DrawTexture(textures["menu_papers"], -36 + getCursorPosFromCenter().x / 10, -36 + getCursorPosFromCenter().y / 10, WHITE);
 
 
-        drawDragableObjects();// FOR DEBUG PURPOSES
+        // drawDragableObjects();// FOR DEBUG PURPOSES
 
 
         static ButtonStatus menu_begin_status = NOT_HOVERED;
@@ -73,6 +73,11 @@ void Game::drawMainMenu()
             current_window = WindowID::GAME;
         }
 
+        // Color col = {255, 0, 0, 255};
+        // DrawText( "This game is unfininshed and there is almost no gameplay,"
+        //         , 0, screen_height / 2 + 96, 24, col);
+        // DrawText( "sorry, we failed to make it in time and now it's just garbage"
+        //         , 0, screen_height / 2 + 120, 24, col);
     EndDrawing();
 }
 
@@ -149,19 +154,19 @@ void Game::drawGameOver()
     EndDrawing();
 }
 
-void Game::drawPlayground()
-{
-    dragObjects();
+// void Game::drawPlayground()
+// {
+//     dragObjects();
 
-    BeginDrawing();
+//     BeginDrawing();
 
-        ClearBackground(DARKGRAY);
+//         ClearBackground(DARKGRAY);
 
-        createDragableObject(textures["game_hex_table"], { 100, 100 }, 40);
-        drawDragableObjects();
+//         createDragableObject(textures["game_hex_table"], { 100, 100 }, 40);
+//         // drawDragableObjects();
 
-    EndDrawing();
-}
+//     EndDrawing();
+// }
 
 Rectangle centerRect(int x, int y, float width, float height)
 {

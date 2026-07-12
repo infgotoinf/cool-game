@@ -54,65 +54,176 @@ void drawCustomCursor(const std::vector<Texture2D> &animation)
 }
 
 
+Rectangle Game::swingKnife()
+{
+    static int frame_counter = 0;
+    static int frame = 0;
+
+    ++frame_counter;
+    if (frame_counter >= FPS / animation_fps)
+    {
+        frame_counter = 0;
+        ++frame;
+        if (frame >= 3) frame = 0;
+    }
+    DrawTexture( animations["game_cursor_knife_swing"][frame]
+               , static_cast<float>(GetMouseX() - animations["game_cursor_knife_swing"][frame].width * 0.5)
+               , static_cast<float>(GetMouseY() - animations["game_cursor_knife_swing"][frame].height * 0.5)
+               , WHITE);
+
+
+    static float swing_size = 80;
+    Rectangle rec = { (float) GetMouseX() - swing_size
+                    , (float) GetMouseY() - swing_size / 2
+                    , swing_size * 2, swing_size / 2 };
+    DrawRectangleRec(rec, RED);
+    DrawRectangleLinesEx(rec, 1, WHITE);
+    return rec;
+}
+
+
 Rectangle getCursorHitbox()
 {
     static float cursor_size = 60;
     Rectangle rec = { (float) GetMouseX() - cursor_size / 2
                     , (float) GetMouseY() - cursor_size / 2
                     , cursor_size, cursor_size };
-    // DrawRectangleRec(rec, BLACK);
-    // DrawRectangleLinesEx(rec, 1, WHITE);
+    DrawRectangleRec(rec, GOLD);
+    DrawRectangleLinesEx(rec, 1, WHITE);
     return rec;
 }
 
 
-
-void Game::dragObjects()
+bool Game::dragObjects()
 {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) and not is_dragging)
+    if (not is_dragging)
     {
         Rectangle cursor_hibox = getCursorHitbox();
         for (DragableObject& obj : dragable_objects)
         {
             if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, cursor_hibox))
             {
-                is_dragging = true;
-                dragged_object = &obj;
-                break;
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && obj.type != ALIVE)
+                {
+                    is_dragging = true;
+                    dragged_object = &obj;
+                }
+                else if (obj.type == KNIFE && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+                {
+                    is_holding_a_knife = true;
+                    obj.pos = { 1000, 1000}; // To lazy to delete this shit
+                }
+                return true;
             }
         }
     }
     else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) and is_dragging)
     {
-        dragged_object->pos = GetMousePosition();
+        dragged_object->pos.x += GetMouseDelta().x;
+        dragged_object->pos.y += GetMouseDelta().y;
     }
     else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) and is_dragging)
     {
         is_dragging = false;
         dragged_object = nullptr;
     }
-
+    return false;
 }
 
-void Game::drawDragableObjects()
+
+void Game::drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z)
 {
-    for (DragableObject obj : dragable_objects)
+    for (DragableObject& obj : dragable_objects)
     {
-        DrawRectangle(obj.pos.x, obj.pos.y, 40, 40, RED);
+        // if ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE && pos_z == FRONT) return;
+        // if (not ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE) && pos_z == ALMOST_FRONT) return;
+
+        if (obj.animation.empty())
+            DrawTexture(obj.texture, obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
+        else
+        {
+            static int frame_counter = 0;
+            static int frame = 0;
+
+            ++frame_counter;
+            if (frame_counter >= FPS / animation_fps)
+            {
+                frame_counter = 0;
+                ++frame;
+                if (frame >= 3) frame = 0;
+            }
+            DrawTexture( obj.animation[frame]
+                       , obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
+        }
+
         if (obj.hitbox_visible)
         {
-            DrawCircle(obj.pos.x, obj.pos.y, obj.hitbox_radius, { 120, 167, 210, 125 }); // Hardcoded debug hitbox color
+            DrawCircle(obj.pos.x + shift_x, obj.pos.y + shift_y, obj.hitbox_radius, { 120, 167, 210, 125 }); // Hardcoded debug hitbox color
         }
-        //DrawTexture(obj.texture, obj.pos.x - obj.texture.width/2, obj.pos.y - obj.texture.height/2, WHITE);
     }
 }
 
-void Game::createDragableObject(Texture2D texture, Vector2 position, unsigned radius, bool hitbox_visible)
+
+void Game::spawnSpider()
 {
-    DragableObject obj = { position, texture, radius, hitbox_visible};
+    Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 144 * 4)), 72 };
+    for (DragableObject &obj : dragable_objects)
+    {
+        if (obj.name == SPIDER && obj.type == DEAD)
+        {
+            obj.pos = rand_pos;
+            obj.type = ALIVE;
+        }
+    }
+    createDragableObject( animations["game_object_spider"], textures["game_object_spider"]
+                        , rand_pos, 40, ALIVE, SPIDER);
+}
+
+void Game::updateSpider(Rectangle attack)
+{
+    static float pos_shift = 1.0f * curse_drain_speed;
+    static bool move_switch = false;
+    static int edge = 72 * 3;
+
+    for (DragableObject &obj : dragable_objects)
+    {
+        if (obj.name == SPIDER && obj.type == ALIVE)
+        {
+            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
+            {
+                obj.name = NO;
+                obj.type = DEAD;
+                obj.animation = std::vector<Texture2D>();
+            }
+            else if (obj.pos.y <= edge && !move_switch)
+            {
+                obj.pos.y += pos_shift;
+            }
+            else if (obj.pos.y >= edge && !move_switch)
+            {
+                obj.pos.y -= pos_shift;
+                move_switch = true;
+            }
+            else if (obj.pos.y >= 72 && move_switch)
+            {
+                obj.pos.y -= pos_shift;
+            }
+            else
+            {
+                obj.pos = { 1000, 1000 };
+            }
+        }
+    }
+}
+
+
+void Game::createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, bool hitbox_visible)
+{
+    DragableObject obj = { animation, texture, position, radius, type, name, hitbox_visible};
 
     dragable_objects.push_back(obj);
 }
+
 
 void Game::sortGuysByPosY()
 {
@@ -324,6 +435,33 @@ void Game::drawGame()
     shakeScreen( curse_value <= SECONDS_TO_CURSE / 3
                ? SECONDS_TO_CURSE / 3 - curse_value : 0);
 
+
+    static bool cursor_can_grab;
+
+    if (is_holding_a_knife && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+    {
+        for (DragableObject &obj : dragable_objects)
+        {
+            if (obj.type == KNIFE)
+            {
+                obj.pos = GetMousePosition();
+                break;
+            }
+        }
+        is_holding_a_knife = false;
+    }
+    else
+    {
+        cursor_can_grab = dragObjects();
+    }
+
+    static int time_to_spawn_a_spider = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    if (time_to_spawn_a_spider < GetTime() - game_start_timestamp)
+    {
+        spawnSpider();
+        time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    }
+
     // Draw
     //----------------------------------------------------------------------------------
     // Render game screen to a texture,
@@ -345,6 +483,9 @@ void Game::drawGame()
 
             DrawTexture(textures["game_almost_front"], size_10th + getCursorPosFromCenter().x / 20
                                                      , getCursorPosFromCenter().y / 20 + 10, WHITE);
+
+            drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, ALMOST_FRONT);
+
             DrawTexture(textures["game_front"], -size_10th / 2 + getCursorPosFromCenter().x / 15
                                               , -size_10th / 2 + getCursorPosFromCenter().y / 15, WHITE);
             // DrawRectangle(72, 140, 578, 165, WHITE); // Draw guy walk area
@@ -356,6 +497,8 @@ void Game::drawGame()
             DrawTexture(textures["game_hex_table"], size_10th * 0.5f - 10.0f + getCursorPosFromCenter().x / 14
                                                   , size_10th         * 6.0f + getCursorPosFromCenter().y / 14
                                                   , WHITE);
+
+            drawDragableObjects(getCursorPosFromCenter().x / 14, getCursorPosFromCenter().y / 14, FRONT);
 
             DrawTexture(textures["game_curtains"], -size_10th / 2 + getCursorPosFromCenter().x / 12
                                                  , -size_10th / 2 + getCursorPosFromCenter().y / 12, WHITE);
@@ -384,6 +527,7 @@ void Game::drawGame()
                            , size_10th / 3 * 2 + bar_paralax.y }
                            , 60, 1
                            , curse_drain_speed_color);
+            DrawText(TextFormat("%d", time_to_spawn_a_spider), 10, 10, 24, PURPLE);
 
         EndMode2D();
     EndTextureMode();
@@ -438,7 +582,27 @@ void Game::drawGame()
 
 
         // Cursor
-        drawCustomCursor(IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? animations["game_cursor_grab"] : animations["game_cursor_free"]);
+        if (is_holding_a_knife)
+        {
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            {
+                updateSpider(swingKnife());
+            }
+            else
+            {
+                updateSpider();
+                drawCustomCursor(animations["game_cursor_knife_hold"]);
+            }
+        }
+        else
+        {
+            updateSpider();
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            {
+                drawCustomCursor(animations["game_cursor_grab"]);
+            }
+            else drawCustomCursor(cursor_can_grab ? animations["game_cursor_ready"] : animations["game_cursor_free"]);
+        }
         getCursorHitbox();
 
     EndDrawing();

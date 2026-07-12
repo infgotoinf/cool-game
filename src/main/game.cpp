@@ -1,6 +1,7 @@
 #include "include/game.hpp"
 
 #include "raylib.h"
+#include <vector>
 
 
 
@@ -54,7 +55,9 @@ Game::Game()
     textures["game_pause_icon"]   = LoadTexture("resources/game/pause_icon.png");
 
     // Objects
-    textures["game_object_knife"] = LoadTexture("resources/game/objects/knife.png");
+    textures["game_object_knife"]  = LoadTexture("resources/game/objects/knife.png");
+    textures["game_object_spider"] = LoadTexture("resources/game/objects/dead/spider.png");
+    loadAnimationFrames("resources/game/objects/spider", &animations["game_object_spider"], NOT_GUY_ANIMATION);
 
     textures["menu_back"]   = LoadTexture("resources/menu/back.png");
     textures["menu_front"]  = LoadTexture("resources/menu/front.png");
@@ -175,6 +178,7 @@ void Game::resetGame()
 
     is_gameover = false;
     is_tutorial_over = false;
+    is_holding_a_knife = false;
     curse_value = SECONDS_TO_CURSE;
     curse_drain_speed = 1.0f;
 
@@ -184,6 +188,9 @@ void Game::resetGame()
         guys.push_back(createRandomGuy());
 
     sortGuysByPosY();
+
+    dragable_objects.clear();
+    createDragableObject(std::vector<Texture2D>{}, textures["game_object_knife"], { 400, 500 }, 30, KNIFE, NO, true);
 
     game_start_timestamp = GetTime();
 }

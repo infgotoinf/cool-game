@@ -6,7 +6,7 @@ enum WindowID : unsigned short
     MAIN_MENU
    ,GAME
    ,PAUSE
-   ,PLAYGROUND
+   // ,PLAYGROUND
 };
 
 #endif // WINDOW_CODES_HPP

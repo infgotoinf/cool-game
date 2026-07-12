@@ -33,16 +33,44 @@ static const char* formatTime(float time)
 }
 
 
+enum ObjectType : unsigned short
+{
+    NONE
+   ,KNIFE
+   ,DEAD
+   ,ALIVE
+};
+
+
+enum EntityName : unsigned short
+{
+    NO
+   ,SPIDER
+   ,RAT
+   ,BIRD
+   ,LEAF
+   ,NAIL
+};
+
+
 enum ButtonStatus : unsigned short
 {
     HOVERED
    ,NOT_HOVERED
 };
 
+
 enum GuyState : unsigned short
 {
     WALK
    ,IDLE
+};
+
+
+enum LayerZ : unsigned short
+{
+    FRONT
+   ,ALMOST_FRONT
 };
 
 
@@ -63,11 +91,13 @@ struct Guy
 
 struct DragableObject
 {
-    Vector2 pos;
+    std::vector<Texture2D> animation;
     Texture2D texture;
+    Vector2 pos;
     unsigned hitbox_radius;
+    ObjectType type;
+    EntityName name;
     bool hitbox_visible;
-
 };
 
 class Game
@@ -92,6 +122,7 @@ class Game
     bool is_gameover;
     bool is_tutorial_over;
     bool is_dragging;
+    bool is_holding_a_knife;
 
     constexpr static int screen_width = 720;
     constexpr static int screen_height = 720;
@@ -139,12 +170,14 @@ public:
 
     void drawFace(int shift_x, int shift_y);
 
+    Rectangle swingKnife();
+
     // Dragable Objects
-    void dragObjects();
+    bool dragObjects();
 
-    void drawDragableObjects();
+    void drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z);
 
-    void createDragableObject(Texture2D texture, Vector2 position, unsigned radius, bool hitbox_visible = false);
+    void createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, bool hitbox_visible = false);
 
     // Screens
     void drawMainMenu();
@@ -155,7 +188,11 @@ public:
 
     void drawGameOver();
 
-    void drawPlayground();
+    void spawnSpider();
+
+    void updateSpider(Rectangle attack = { 0, 0, 0, 0 });
+
+    // void drawPlayground();
 };
 
 #endif // GAME_HPP
