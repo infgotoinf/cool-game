@@ -99,14 +99,14 @@ bool Game::dragObjects()
     if (not is_dragging)
     {
         Rectangle cursor_hibox = getCursorHitbox();
-        for (DragableObject& obj : dragable_objects)
+        for (DragableObject* obj : dragable_objects)
         {
-            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, cursor_hibox))
+            if (CheckCollisionCircleRec(obj->pos, obj->hitbox_radius, cursor_hibox))
             {
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && obj.type != ALIVE && not is_holding_a_knife)
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && obj->type != ALIVE && not is_holding_a_knife)
                 {
                     is_dragging = true;
-                    dragged_object = &obj;
+                    dragged_object = obj;
 
                     for (int i = 0; i < 6; ++i)
                     {
@@ -119,10 +119,10 @@ bool Game::dragObjects()
                     }
 
                 }
-                else if (obj.type == KNIFE && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+                else if (obj->type == KNIFE && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
                 {
                     is_holding_a_knife = true;
-                    obj.pos = { 1000, 1000}; // To lazy to delete this shit
+                    obj->pos = { 1000, 1000}; // To lazy to delete this shit
                 }
                 return true;
             }
@@ -156,6 +156,27 @@ bool Game::dragObjects()
             }
         }
 
+        bool is_complete = true;
+        for (int i = 0; i < 6; ++i)
+        {
+            if (hex_table_slots[i] == nullptr)
+            {
+                is_complete = false;
+                break;
+            }
+        }
+
+        if (is_complete)
+        {
+            for (int i = 0; i < 6; ++i)
+            {
+                hex_table_trinagles[i].is_active = false;
+                deleteDragableObject(hex_table_slots[i]);
+                hex_table_slots[i] = nullptr;
+            }
+
+            createDragableObject({}, textures["game_object_book_blindness"], hex_table_trinagles[0].point3, 40, BOOK, NO);
+        }
 
         is_dragging = false;
         dragged_object = nullptr;
@@ -166,29 +187,29 @@ bool Game::dragObjects()
 
 void Game::drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z)
 {
-    for (DragableObject& obj : dragable_objects)
+    for (DragableObject* obj : dragable_objects)
     {
-        if ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE && pos_z == FRONT) continue;
-        if (not ((obj.name == SPIDER || obj.name == BIRD) && obj.type == ALIVE) && pos_z == ALMOST_FRONT) continue;
+        if ((obj->name == SPIDER || obj->name == BIRD) && obj->type == ALIVE && pos_z == FRONT) continue;
+        if (not ((obj->name == SPIDER || obj->name == BIRD) && obj->type == ALIVE) && pos_z == ALMOST_FRONT) continue;
 
-        if (obj.animation.empty())
-            DrawTexture(obj.texture, obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
+        if (obj->animation.empty())
+            DrawTexture(obj->texture, obj->pos.x - obj->texture.width * 0.5 + shift_x, obj->pos.y - obj->texture.height * 0.5 + shift_y, WHITE);
         else
         {
-            ++obj.frame_counter;
-            if (obj.frame_counter >= FPS / animation_fps)
+            ++obj->frame_counter;
+            if (obj->frame_counter >= FPS / animation_fps)
             {
-                obj.frame_counter = 0;
-                ++obj.frame;
-                if (obj.frame >= 3) obj.frame = 0;
+                obj->frame_counter = 0;
+                ++obj->frame;
+                if (obj->frame >= 3) obj->frame = 0;
             }
-            DrawTexture( obj.animation[obj.frame]
-                       , obj.pos.x - obj.texture.width * 0.5 + shift_x, obj.pos.y - obj.texture.height * 0.5 + shift_y, WHITE);
+            DrawTexture( obj->animation[obj->frame]
+                       , obj->pos.x - obj->texture.width * 0.5 + shift_x, obj->pos.y - obj->texture.height * 0.5 + shift_y, WHITE);
         }
 
-        if (obj.hitbox_visible)
+        if (obj->hitbox_visible)
         {
-            DrawCircle(obj.pos.x + shift_x, obj.pos.y + shift_y, obj.hitbox_radius, { 120, 167, 210, 125 }); // Hardcoded debug hitbox color
+            DrawCircle(obj->pos.x + shift_x, obj->pos.y + shift_y, obj->hitbox_radius, { 120, 167, 210, 125 }); // Hardcoded debug hitbox color
         }
     }
 }
@@ -197,13 +218,13 @@ void Game::drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z)
 void Game::spawnSpider()
 {
     Vector2 rand_pos = { static_cast<float>(GetRandomValue(216, 72 * 7)), -36 };
-    for (DragableObject &obj : dragable_objects)
+    for (DragableObject* obj : dragable_objects)
     {
-        if (obj.name == SPIDER && obj.type == DEAD)
+        if (obj->name == SPIDER && obj->type == DEAD)
         {
-            obj.pos = rand_pos;
-            obj.type = ALIVE;
-            obj.state = 1;
+            obj->pos = rand_pos;
+            obj->type = ALIVE;
+            obj->state = 1;
         }
     }
     createDragableObject( animations["game_object_spider"], textures["game_object_spider"]
@@ -216,13 +237,13 @@ void Game::spawnBird()
     bool moves_right = GetRandomValue(0, 1);
     Vector2 rand_pos = { static_cast<float>(moves_right ? 72 : 72 * 9), static_cast<float>(GetRandomValue(72, 144))};
     std::vector<Texture2D> animation = animations[moves_right ? "game_object_bird_fly_back" : "game_object_bird_fly"];
-    for (DragableObject &obj : dragable_objects)
-        if (obj.name == BIRD && obj.type == DEAD)
+    for (DragableObject* obj : dragable_objects)
+        if (obj->name == BIRD && obj->type == DEAD)
         {
-            obj.pos = rand_pos;
-            obj.type = ALIVE;
-            obj.state = moves_right ? 1 : -1;
-            obj.animation = animation;
+            obj->pos = rand_pos;
+            obj->type = ALIVE;
+            obj->state = moves_right ? 1 : -1;
+            obj->animation = animation;
         }
     createDragableObject( animation, textures["game_object_bird"]
                         , rand_pos, 40, ALIVE, BIRD, 1);
@@ -231,106 +252,106 @@ void Game::spawnBird()
 
 void Game::updateEntities(Rectangle attack)
 {
-    for (DragableObject &obj : dragable_objects)
+    for (DragableObject* obj : dragable_objects)
     {
-        if (obj.name == SPIDER && obj.type == ALIVE)
+        if (obj->name == SPIDER && obj->type == ALIVE)
         {
             static float pos_shift = 1.0f * curse_drain_speed;
             static int edge = 72 * 3;
-            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
+            if (CheckCollisionCircleRec(obj->pos, obj->hitbox_radius, attack))
             {
-                obj.name = NO;
-                obj.type = DEAD;
-                obj.state = 0;
-                obj.animation = std::vector<Texture2D>();
+                obj->name = NO;
+                obj->type = DEAD;
+                obj->state = 0;
+                obj->animation = std::vector<Texture2D>();
             }
-            else if (obj.pos.y <= edge && obj.state == 1)
+            else if (obj->pos.y <= edge && obj->state == 1)
             {
-                obj.pos.y += pos_shift;
+                obj->pos.y += pos_shift;
             }
-            else if (obj.pos.y >= edge && obj.state == 1)
+            else if (obj->pos.y >= edge && obj->state == 1)
             {
-                obj.pos.y -= pos_shift;
-                obj.state = 2;
+                obj->pos.y -= pos_shift;
+                obj->state = 2;
             }
-            else if (obj.pos.y >= -36 && obj.state == 2)
+            else if (obj->pos.y >= -36 && obj->state == 2)
             {
-                obj.pos.y -= pos_shift;
+                obj->pos.y -= pos_shift;
             }
             else
             {
-                obj.type = DEAD;
-                obj.pos = { 1000, 1000 };
-                obj.state = 0;
+                obj->type = DEAD;
+                obj->pos = { 1000, 1000 };
+                obj->state = 0;
             }
         }
-        else if (obj.name == BIRD && obj.type == ALIVE)
+        else if (obj->name == BIRD && obj->type == ALIVE)
         {
             static float pos_shift = 2.0f * curse_drain_speed;
             static int edge = 72 * 4 + 10;
             static float edge2;
-            if (CheckCollisionCircleRec(obj.pos, obj.hitbox_radius, attack))
+            if (CheckCollisionCircleRec(obj->pos, obj->hitbox_radius, attack))
             {
-                obj.name = NO;
-                obj.type = DEAD;
-                obj.state = 0;
-                obj.animation = std::vector<Texture2D>();
+                obj->name = NO;
+                obj->type = DEAD;
+                obj->state = 0;
+                obj->animation = std::vector<Texture2D>();
             }
-            else if (obj.pos.y <= edge && obj.state == 1)
+            else if (obj->pos.y <= edge && obj->state == 1)
             {
-                obj.pos.y += pos_shift;
-                obj.pos.x += pos_shift;
+                obj->pos.y += pos_shift;
+                obj->pos.x += pos_shift;
             }
-            else if (obj.pos.y <= edge && obj.state == -1)
+            else if (obj->pos.y <= edge && obj->state == -1)
             {
-                obj.pos.y += pos_shift;
-                obj.pos.x -= pos_shift;
+                obj->pos.y += pos_shift;
+                obj->pos.x -= pos_shift;
             }
-            else if (obj.pos.y >= edge && obj.state == 1)
+            else if (obj->pos.y >= edge && obj->state == 1)
             {
-                obj.state = 2;
-                edge2 = obj.pos.x + 1;
-                obj.animation = animations["game_object_bird_idle_back"];
+                obj->state = 2;
+                edge2 = obj->pos.x + 1;
+                obj->animation = animations["game_object_bird_idle_back"];
             }
-            else if (obj.pos.y >= edge && obj.state == -1)
+            else if (obj->pos.y >= edge && obj->state == -1)
             {
-                obj.state = -2;
-                edge2 = obj.pos.x - 1;
-                obj.animation = animations["game_object_bird_idle"];
+                obj->state = -2;
+                edge2 = obj->pos.x - 1;
+                obj->animation = animations["game_object_bird_idle"];
             }
-            else if (obj.pos.x <= edge2 && obj.state == 2)
+            else if (obj->pos.x <= edge2 && obj->state == 2)
             {
-                obj.pos.x += pos_shift / 10;
+                obj->pos.x += pos_shift / 10;
             }
-            else if (obj.pos.x >= edge2 && obj.state == -2)
+            else if (obj->pos.x >= edge2 && obj->state == -2)
             {
-                obj.pos.x -= pos_shift / 10;
+                obj->pos.x -= pos_shift / 10;
             }
-            else if (obj.pos.x >= edge2 && obj.state == 2)
+            else if (obj->pos.x >= edge2 && obj->state == 2)
             {
-                obj.state = 3;
-                obj.animation = animations["game_object_bird_fly_back"];
+                obj->state = 3;
+                obj->animation = animations["game_object_bird_fly_back"];
             }
-            else if (obj.pos.x <= edge2 && obj.state == -2)
+            else if (obj->pos.x <= edge2 && obj->state == -2)
             {
-                obj.state = -3;
-                obj.animation = animations["game_object_bird_fly"];
+                obj->state = -3;
+                obj->animation = animations["game_object_bird_fly"];
             }
-            else if (obj.pos.x <= 720 - 72 && obj.state == 3)
+            else if (obj->pos.x <= 720 - 72 && obj->state == 3)
             {
-                obj.pos.x += pos_shift;
-                obj.pos.y -= pos_shift;
+                obj->pos.x += pos_shift;
+                obj->pos.y -= pos_shift;
             }
-            else if (obj.pos.x >= 72 && obj.state == -3)
+            else if (obj->pos.x >= 72 && obj->state == -3)
             {
-                obj.pos.x -= pos_shift;
-                obj.pos.y -= pos_shift;
+                obj->pos.x -= pos_shift;
+                obj->pos.y -= pos_shift;
             }
             else
             {
-                obj.type = DEAD;
-                obj.pos = { 1000, 1000 };
-                obj.state = 0;
+                obj->type = DEAD;
+                obj->pos = { 1000, 1000 };
+                obj->state = 0;
             }
         }
     }
@@ -339,11 +360,23 @@ void Game::updateEntities(Rectangle attack)
 
 void Game::createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, int state, bool hitbox_visible)
 {
-    DragableObject obj = { animation, texture, position, radius, type, name, hitbox_visible};
+    DragableObject* obj = new DragableObject{ animation, texture, position, radius, type, name, hitbox_visible};
 
     dragable_objects.push_back(obj);
 }
 
+
+void Game::deleteDragableObject(DragableObject* obj)
+{
+    for (int i = 0; i < dragable_objects.size(); ++i)
+    {
+        if (dragable_objects[i] == obj)
+        {
+            dragable_objects.erase(dragable_objects.begin() + i);
+        }
+    }
+    delete obj;
+}
 
 void Game::sortGuysByPosY()
 {
@@ -560,11 +593,11 @@ void Game::drawGame()
 
     if (is_holding_a_knife && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
     {
-        for (DragableObject &obj : dragable_objects)
+        for (DragableObject* obj : dragable_objects)
         {
-            if (obj.type == KNIFE)
+            if (obj->type == KNIFE)
             {
-                obj.pos = GetMousePosition();
+                obj->pos = GetMousePosition();
                 break;
             }
         }

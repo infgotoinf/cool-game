@@ -129,7 +129,7 @@ class Game
     std::map<const char*, Music> music;
     std::vector<Texture2D> noise;
     std::vector<Guy> guys;
-    std::vector<DragableObject> dragable_objects;
+    std::vector<DragableObject*> dragable_objects;
     Triangle hex_table_trinagles[6];
     DragableObject* hex_table_slots[6];
     DragableObject* dragged_object;
@@ -203,6 +203,8 @@ public:
     void drawDragableObjects(int shift_x, int shift_y, LayerZ pos_z);
 
     void createDragableObject(std::vector<Texture2D> animation, Texture2D texture, Vector2 position, unsigned radius, ObjectType type, EntityName name, int state = 0, bool hitbox_visible = false);
+
+    void deleteDragableObject(DragableObject* obj);
 
     // Screens
     void drawMainMenu();

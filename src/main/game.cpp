@@ -160,32 +160,38 @@ Game::Game()
     hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2
                 ,  trinagle_x - trinagle_width / 2, trinagle_y
                 ,  trinagle_x, trinagle_y
-                , YELLOW}; // Top-left
+                , WHITE
+                , BLACK }; // Top-left
 
     hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }
                 , { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
-                , GREEN }; // Top
+                , WHITE
+                , BLACK }; // Top
 
     hex_table_trinagles[2] = { { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
                 , { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , RED }; // Top-right
+                , WHITE
+                , BLACK }; // Top-right
 
     hex_table_trinagles[3] = { { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
                 , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , PINK }; // Down-right
+                , WHITE
+                , BLACK }; // Down-right
 
     hex_table_trinagles[4] = { {trinagle_x, trinagle_y}
                 , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
                 , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , ORANGE }; // Down
+                , WHITE
+                , BLACK }; // Down
 
     hex_table_trinagles[5] = { { trinagle_x, trinagle_y }
                 , { trinagle_x - trinagle_width / 2, trinagle_y }
                 , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , SKYBLUE }; // Down-left
+                , WHITE
+                , BLACK }; // Down-left
 
     SetTargetFPS(60);
     resetGame();
@@ -223,6 +229,11 @@ Game::~Game()
         UnloadTexture(texture);
     }
     UnloadTexture(vignette);
+
+    for (DragableObject *&obj : dragable_objects)
+    {
+        delete obj;
+    }
 
     CloseWindow();        // Close window and OpenGL context
     //-------------------------------------------------------------------------
