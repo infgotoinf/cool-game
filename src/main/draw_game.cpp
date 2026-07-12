@@ -135,24 +135,36 @@ bool Game::dragObjects()
     }
     else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) and is_dragging)
     {
+        if (dragged_object->type == BOOK)
+        {
+            for (Guy &guy : guys)
+            {
+                if (CheckCollisionCircleRec(dragged_object->pos, dragged_object->hitbox_radius, guy.getHitbox()))
+                {
+                    guy.state = BLIND_IDLE;
+                    guy.frame = 0;
+                    curse_value = SECONDS_TO_CURSE;
+                    deleteDragableObject(dragged_object);
+                    break;
+                }
+            }
+        }
+
         for (int i = 0; i < 6; ++i)
         {
             if (CheckCollisionPointTriangle(dragged_object->pos,
                 hex_table_trinagles[i].point1,
                 hex_table_trinagles[i].point2,
-                hex_table_trinagles[i].point3) 
+                hex_table_trinagles[i].point3)
                 &&
                 !(dragged_object->type == KNIFE)
-                ) 
+                )
             {
 
                 hex_table_slots[i] = dragged_object;
                 hex_table_trinagles[i].is_active = true;
                 break;
-                
 
-                
-                
             }
         }
 
@@ -178,6 +190,7 @@ bool Game::dragObjects()
             createDragableObject({}, textures["game_object_book_blindness"], hex_table_trinagles[0].point3, 40, BOOK, NO);
         }
 
+        PlaySound(sounds["drop"]);
         is_dragging = false;
         dragged_object = nullptr;
     }
@@ -436,8 +449,23 @@ void Game::drawGuys(int shift_x, int shift_y)
                 break;
 
             case GuyState::IDLE:
-            default:
                 if (guy.frame >= animations["game_guy_idle"].size())
+                {
+                    guy.frame = 0;
+                    --guy.state_change_cycles_left;
+                }
+                break;
+
+            case GuyState::BLIND_WALK:
+                if (guy.frame >= animations["game_guy_blind_walk"].size())
+                {
+                    guy.frame = 0;
+                    --guy.state_change_cycles_left;
+                }
+                break;
+
+            case GuyState::BLIND_IDLE:
+                if (guy.frame >= animations["game_guy_blind_idle"].size())
                 {
                     guy.frame = 0;
                     --guy.state_change_cycles_left;
@@ -448,13 +476,32 @@ void Game::drawGuys(int shift_x, int shift_y)
             // state, is_moving_forward, state_change_cycles_left change
             if (guy.state_change_cycles_left <= 0)
             {
-                guy.state = (guy.state == WALK ? IDLE : WALK);
+                switch (guy.state)
+                {
+                case WALK:
+                    guy.state = IDLE;
+                    guy.state_change_cycles_left = GetRandomValue(1, 10);
+                    break;
+
+                case IDLE:
+                    guy.state = WALK;
+                    guy.state_change_cycles_left = GetRandomValue(2, 20);
+                    break;
+
+                case BLIND_IDLE:
+                    guy.state = BLIND_WALK;
+                    guy.state_change_cycles_left = GetRandomValue(1, 10);
+                    break;
+
+                case BLIND_WALK:
+                    guy.state = BLIND_IDLE;
+                    guy.state_change_cycles_left = GetRandomValue(2, 20);
+                    break;
+                }
                 // 33% chance to turn back
                 bool was_moving_forward = guy.is_moving_forward;
                 guy.is_moving_forward = (GetRandomValue(0, 2) ? guy.is_moving_forward
                                                               : !guy.is_moving_forward);
-                guy.state_change_cycles_left = (guy.state == IDLE ? GetRandomValue(2, 20)
-                                                                  : GetRandomValue(1, 10));
                 if (was_moving_forward != guy.is_moving_forward)
                 {
                     guy.speed = GetRandomValue(GUY_SPEED_SPREAD.x, GUY_SPEED_SPREAD.y) * 0.1 * curse_drain_speed;
@@ -477,17 +524,36 @@ void Game::drawGuys(int shift_x, int shift_y)
         // Moving a walking guy
         if (guy.state == WALK) guy.pos.x += (static_cast<bool>(guy.is_moving_forward)
                                           ? guy.speed : -guy.speed);
+        else if (guy.state == BLIND_WALK) guy.pos.x += (static_cast<bool>(guy.is_moving_forward)
+                                               ? guy.speed / 2 : -guy.speed / 2);
 
         // Will draw guy's hitbox
         // DrawRectangleRec(guy.getHitbox(), GOLD);
 
         // Drawing guys
-        DrawTexture( guy.state == WALK
-                   ? (guy.is_moving_forward ? animations["game_guy_walk"][guy.frame]
-                                            : animations["game_guy_walk_back"][guy.frame])
-                   : (guy.is_moving_forward ? animations["game_guy_idle"][guy.frame]
-                                            : animations["game_guy_idle_back"][guy.frame])
-                   , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+        switch (guy.state)
+        {
+        case WALK:
+            DrawTexture( guy.is_moving_forward ? animations["game_guy_walk"][guy.frame]
+                                               : animations["game_guy_walk_back"][guy.frame]
+                       , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+            break;
+        case IDLE:
+            DrawTexture( guy.is_moving_forward ? animations["game_guy_idle"][guy.frame]
+                                               : animations["game_guy_idle_back"][guy.frame]
+                       , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+            break;
+        case BLIND_WALK:
+            DrawTexture( guy.is_moving_forward ? animations["game_guy_blind_walk"][guy.frame]
+                                               : animations["game_guy_blind_walk_back"][guy.frame]
+                       , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+            break;
+        case BLIND_IDLE:
+            DrawTexture( guy.is_moving_forward ? animations["game_guy_blind_idle"][guy.frame]
+                                               : animations["game_guy_blind_idle_back"][guy.frame]
+                       , guy.pos.x + shift_x, guy.pos.y + shift_y, guy.color);
+            break;
+        }
     }
 }
 
@@ -608,18 +674,18 @@ void Game::drawGame()
         cursor_can_grab = dragObjects();
     }
 
-    static int time_to_spawn_a_spider = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    static int time_to_spawn_a_spider = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     if (time_to_spawn_a_spider < GetTime() - game_start_timestamp)
     {
         spawnSpider();
-        time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+        time_to_spawn_a_spider = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     }
 
-    static int time_to_spawn_a_bird = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+    static int time_to_spawn_a_bird = game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     if (time_to_spawn_a_bird < GetTime() - game_start_timestamp)
     {
         spawnBird();
-        time_to_spawn_a_bird = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 15 / curse_drain_speed);
+        time_to_spawn_a_bird = GetTime() - game_start_timestamp + GetRandomValue(5 / curse_drain_speed, 10 / curse_drain_speed);
     }
 
     // Draw

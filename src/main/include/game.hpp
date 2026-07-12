@@ -65,6 +65,8 @@ enum GuyState : unsigned short
 {
     WALK
    ,IDLE
+   ,BLIND_WALK
+   ,BLIND_IDLE
 };
 
 

@@ -92,6 +92,8 @@ Game::Game()
     // Load animations
     loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"], GUY_ANIMATION);
     loadAnimationFrames("resources/game/guy/idle", &animations["game_guy_idle"], GUY_ANIMATION);
+    loadAnimationFrames("resources/game/guy/blind/walk", &animations["game_guy_blind_walk"], GUY_ANIMATION);
+    loadAnimationFrames("resources/game/guy/blind/idle", &animations["game_guy_blind_idle"], GUY_ANIMATION);
     // Create "back" variations
     for (Texture2D frame : animations["game_guy_walk"])
     {
@@ -105,6 +107,20 @@ Game::Game()
         Image image = LoadImageFromTexture(frame);
         ImageFlipHorizontal(&image);
         animations["game_guy_idle_back"].push_back(LoadTextureFromImage(image));
+        UnloadImage(image);
+    }
+    for (Texture2D frame : animations["game_guy_blind_walk"])
+    {
+        Image image = LoadImageFromTexture(frame);
+        ImageFlipHorizontal(&image);
+        animations["game_guy_blind_walk_back"].push_back(LoadTextureFromImage(image));
+        UnloadImage(image);
+    }
+    for (Texture2D frame : animations["game_guy_blind_idle"])
+    {
+        Image image = LoadImageFromTexture(frame);
+        ImageFlipHorizontal(&image);
+        animations["game_guy_blind_idle_back"].push_back(LoadTextureFromImage(image));
         UnloadImage(image);
     }
 
@@ -124,6 +140,7 @@ Game::Game()
     // Load sounds
     sounds["button_click"] = LoadSound("resources/audio/button/click.wav");
     sounds["button_hover"] = LoadSound("resources/audio/button/hover.wav");
+    sounds["drop"] = LoadSound("resources/audio/drop.wav");
 
     // Load music
     music["inadequate"] = LoadMusicStream("resources/music/inadequate.mp3");
