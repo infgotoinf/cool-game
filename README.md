@@ -127,7 +127,8 @@ Keyboard:
 
 ### Screenshots
 
-_TODO: Show your game to the world, animated GIFs recommended!._
+<img width="652" height="651" alt="image" src="https://github.com/user-attachments/assets/29e243ad-e1e2-4a3f-b077-1d01e09de671" />
+
 
 ### Developers
 
