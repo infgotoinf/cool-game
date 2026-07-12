@@ -92,35 +92,48 @@ Game::Game()
     float trinagle_width = 2 * trinagle_size;
     float trinagle_height = sqrt(3) * trinagle_size;
 
+
     hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2
                 ,  trinagle_x - trinagle_width / 2, trinagle_y
                 ,  trinagle_x, trinagle_y
                 , YELLOW}; // Top-left
 
+    hex_table_trinagles[0] = {  trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 
+                ,  trinagle_x - trinagle_width / 2, trinagle_y 
+                ,  trinagle_x, trinagle_y 
+                , WHITE
+                , BLACK}; // Top-left
+
+
     hex_table_trinagles[1] = { { trinagle_x - trinagle_width / 4, trinagle_y - trinagle_height / 2 }
                 , { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
-                , GREEN }; // Top
+                , WHITE
+                , BLACK }; // Top
 
     hex_table_trinagles[2] = { { trinagle_x + trinagle_width / 4, trinagle_y - trinagle_height / 2 }
                 , { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , RED }; // Top-right
+                , WHITE
+                , BLACK }; // Top-right
 
     hex_table_trinagles[3] = { { trinagle_x, trinagle_y }
                 , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
                 , { trinagle_x + trinagle_width / 2, trinagle_y }
-                , PINK }; // Down-right
+                , WHITE
+                , BLACK }; // Down-right
 
     hex_table_trinagles[4] = { {trinagle_x, trinagle_y}
                 , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
                 , { trinagle_x + trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , ORANGE }; // Down
+                , WHITE
+                , BLACK }; // Down
 
     hex_table_trinagles[5] = { { trinagle_x, trinagle_y }
                 , { trinagle_x - trinagle_width / 2, trinagle_y }
                 , { trinagle_x - trinagle_width / 4, trinagle_y + trinagle_height / 2 }
-                , SKYBLUE }; // Down-left
+                , WHITE
+                , BLACK }; // Down-left
 
     // Load animations
     loadAnimationFrames("resources/game/guy/walk", &animations["game_guy_walk"], GUY_ANIMATION);
@@ -249,4 +262,19 @@ void Game::resetGame()
     createDragableObject(std::vector<Texture2D>{}, textures["game_object_knife"], { 400, 500 }, 30, KNIFE, NO);
 
     game_start_timestamp = GetTime();
+
+    for (int i = 0; i < 6; ++i)
+    {
+        hex_table_trinagles[i].is_active = false;
+    }
+}
+
+
+Color Triangle::GetColor()
+{
+    if (is_active)
+    {
+        return color;
+    }
+    return inactive_color;
 }

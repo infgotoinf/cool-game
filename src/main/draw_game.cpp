@@ -107,6 +107,17 @@ bool Game::dragObjects()
                 {
                     is_dragging = true;
                     dragged_object = &obj;
+
+                    for (int i = 0; i < 6; ++i)
+                    {
+                        if (dragged_object == hex_table_slots[i])
+                        {
+                            hex_table_slots[i] = nullptr;
+                            hex_table_trinagles[i].is_active = false;
+                            break;
+                        }
+                    }
+
                 }
                 else if (obj.type == KNIFE && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
                 {
@@ -129,10 +140,19 @@ bool Game::dragObjects()
             if (CheckCollisionPointTriangle(dragged_object->pos,
                 hex_table_trinagles[i].point1,
                 hex_table_trinagles[i].point2,
-                hex_table_trinagles[i].point3))
+                hex_table_trinagles[i].point3) 
+                &&
+                !(dragged_object->type == KNIFE)
+                ) 
             {
-                hex_table_trinagles[i].color = WHITE;
+
+                hex_table_slots[i] = dragged_object;
+                hex_table_trinagles[i].is_active = true;
                 break;
+                
+
+                
+                
             }
         }
 
@@ -687,32 +707,32 @@ void Game::drawHexTable(float shift_x, float shift_y, Color color)
     DrawTriangle( Vector2Add( hex_table_trinagles[0].point1, {shift_x, shift_y})
                 , Vector2Add(hex_table_trinagles[0].point2, { shift_x, shift_y })
                 , Vector2Add(hex_table_trinagles[0].point3, { shift_x, shift_y })
-                , hex_table_trinagles[0].color );
+                , hex_table_trinagles[0].GetColor());
     // Top
     DrawTriangle(Vector2Add(hex_table_trinagles[1].point1, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[1].point2, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[1].point3, { shift_x, shift_y })
-        , hex_table_trinagles[1].color);
+        , hex_table_trinagles[1].GetColor());
     // Top-right
     DrawTriangle(Vector2Add(hex_table_trinagles[2].point1, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[2].point2, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[2].point3, { shift_x, shift_y })
-        , hex_table_trinagles[2].color);
+        , hex_table_trinagles[2].GetColor());
     // Down-right
     DrawTriangle(Vector2Add(hex_table_trinagles[3].point1, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[3].point2, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[3].point3, { shift_x, shift_y })
-        , hex_table_trinagles[3].color);
+        , hex_table_trinagles[3].GetColor());
     // Down
     DrawTriangle(Vector2Add(hex_table_trinagles[4].point1, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[4].point2, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[4].point3, { shift_x, shift_y })
-        , hex_table_trinagles[4].color);
+        , hex_table_trinagles[4].GetColor());
     // Down-left
     DrawTriangle(Vector2Add(hex_table_trinagles[5].point1, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[5].point2, { shift_x, shift_y })
         , Vector2Add(hex_table_trinagles[5].point3, { shift_x, shift_y })
-        , hex_table_trinagles[5].color);
+        , hex_table_trinagles[5].GetColor());
 
     // DrawCircle(x, y, 5, RED);
 }
