@@ -1,12 +1,3 @@
------------------------------------
-_DISCLAIMER:_
-
-Welcome to the **raylib game template**!
-
-This template provides a base structure to start developing a small raylib game in plain C. The repo is also pre-configured with a default `LICENSE` (zlib/libpng) and a `README.md` (this one) to be properly filled by users. Feel free to change the LICENSE as required.
-
-All the sections defined by `$(Data to Fill)` are expected to be edited and filled properly. It's recommended to delete this disclaimer message after editing this `README.md` file.
-
 ## Build + Run
 
 1. Clone project's repo:
@@ -127,7 +118,8 @@ Keyboard:
 
 ### Screenshots
 
-_TODO: Show your game to the world, animated GIFs recommended!._
+<img width="652" height="651" alt="image" src="https://github.com/user-attachments/assets/29e243ad-e1e2-4a3f-b077-1d01e09de671" />
+
 
 ### Developers
 
@@ -136,9 +128,7 @@ _TODO: Show your game to the world, animated GIFs recommended!._
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
  - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
 
 ### License
 
